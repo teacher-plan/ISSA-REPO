@@ -1,16 +1,38 @@
-# React + Vite
+# TechStore 🛒
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+متجر إلكتروني متخصص في بيع الأجهزة الإلكترونية، مبني بـ React + Supabase + Stripe.
 
-Currently, two official plugins are available:
+## الميزات
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- 🏠 **تصفح المنتجات** — عرض المنتجات مع تصنيفات وبحث
+- ❤️ **المفضلة** — حفظ المنتجات للمفضلة
+- 🛒 **سلة التسوق** — إضافة وإدارة المنتجات في السلة
+- 💳 **دفع آمن** — تكامل مع Stripe Checkout
+- 📦 **الطلبات** — متابعة حالة الطلبات
+- ⭐ **التقييمات** — تقييم المنتجات وكتابة مراجعات
+- 👑 **لوحة تحكم المشرف** — إدارة المنتجات، الطلبات، وإحصائيات المبيعات
 
-## React Compiler
+## التشغيل محلياً
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```bash
+# 1. تثبيت الاعتماديات
+npm install
+cd server && npm install && cd ..
 
-## Expanding the ESLint configuration
+# 2. إعداد البيئة
+# انسخ .env.example إلى .env واملأ المتغيرات
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+# 3. تشغيل الخادم الخلفي (نافذة)
+cd server && npm start
+
+# 4. تشغيل الواجهة الأمامية (نافذة أخرى)
+npm run dev
+```
+
+## التقنيات
+
+- **Frontend:** React 19 + Vite + Tailwind CSS v4
+- **Backend:** Express.js + Stripe API
+- **Database:** Supabase (PostgreSQL)
+- **State:** Zustand
+- **Payments:** Stripe Checkout

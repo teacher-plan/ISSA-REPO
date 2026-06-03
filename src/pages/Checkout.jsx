@@ -1,12 +1,22 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { CreditCard, Lock } from 'lucide-react'
-import { useCartStore } from '../lib/store'
+import { Lock } from 'lucide-react'
+import { useCartStore, useAuthStore } from '../lib/store'
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001'
 
 export default function Checkout() {
   const navigate = useNavigate()
   const { items, totalPrice, clearCart } = useCartStore()
+  const user = useAuthStore((s) => s.user)
   const [processing, setProcessing] = useState(false)
+  const [form, setForm] = useState({
+    name: '',
+    email: user?.email || '',
+    address: '',
+    city: '',
+    zip: '',
+  })
 
   if (items.length === 0) {
     navigate('/cart')
@@ -16,10 +26,32 @@ export default function Checkout() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     setProcessing(true)
-    // Simulate payment processing
-    await new Promise((r) => setTimeout(r, 2000))
-    clearCart()
-    navigate('/')
+
+    try {
+      const res = await fetch(`${API_URL}/api/create-checkout-session`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          items: items.map(({ id, name, price, quantity, image_url }) => ({
+            id, name, price, quantity, image_url,
+          })),
+          userId: user?.id,
+          shippingAddress: form,
+        }),
+      })
+
+      const data = await res.json()
+      if (data.url) {
+        clearCart()
+        window.location.href = data.url
+      } else {
+        alert('Payment error: ' + (data.error || 'Unknown error'))
+        setProcessing(false)
+      }
+    } catch (err) {
+      alert('Failed to connect to payment server. Make sure the server is running.')
+      setProcessing(false)
+    }
   }
 
   return (
@@ -35,6 +67,8 @@ export default function Checkout() {
                 <input
                   type="text"
                   required
+                  value={form.name}
+                  onChange={(e) => setForm({ ...form, name: e.target.value })}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
                 />
               </div>
@@ -43,6 +77,8 @@ export default function Checkout() {
                 <input
                   type="email"
                   required
+                  value={form.email}
+                  onChange={(e) => setForm({ ...form, email: e.target.value })}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
                 />
               </div>
@@ -51,6 +87,8 @@ export default function Checkout() {
                 <input
                   type="text"
                   required
+                  value={form.address}
+                  onChange={(e) => setForm({ ...form, address: e.target.value })}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
                 />
               </div>
@@ -59,6 +97,8 @@ export default function Checkout() {
                 <input
                   type="text"
                   required
+                  value={form.city}
+                  onChange={(e) => setForm({ ...form, city: e.target.value })}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
                 />
               </div>
@@ -67,6 +107,8 @@ export default function Checkout() {
                 <input
                   type="text"
                   required
+                  value={form.zip}
+                  onChange={(e) => setForm({ ...form, zip: e.target.value })}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
                 />
               </div>
@@ -74,45 +116,14 @@ export default function Checkout() {
           </div>
 
           <div className="bg-white rounded-xl border border-gray-200 p-6">
-            <h2 className="text-lg font-bold text-gray-900 mb-4">Payment</h2>
             <div className="flex items-center gap-2 text-sm text-gray-600 mb-4">
               <Lock className="w-4 h-4" />
-              Secure payment via Stripe
+              Secure payment via <strong>Stripe</strong>
             </div>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Card Number</label>
-                <div className="relative">
-                  <CreditCard className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                  <input
-                    type="text"
-                    placeholder="4242 4242 4242 4242"
-                    required
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Expiry</label>
-                  <input
-                    type="text"
-                    placeholder="MM/YY"
-                    required
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">CVC</label>
-                  <input
-                    type="text"
-                    placeholder="123"
-                    required
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
-                  />
-                </div>
-              </div>
-            </div>
+            <p className="text-gray-500 text-sm">
+              You will be redirected to Stripe's secure checkout page to complete your payment.
+              We accept Visa, Mastercard, American Express, and Apple Pay.
+            </p>
           </div>
 
           <button
@@ -120,7 +131,7 @@ export default function Checkout() {
             disabled={processing}
             className="w-full bg-indigo-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
-            {processing ? 'Processing...' : `Pay $${(totalPrice() * 1.08).toFixed(2)}`}
+            {processing ? 'Redirecting to Stripe...' : `Pay $${(totalPrice() * 1.08).toFixed(2)}`}
           </button>
         </form>
 

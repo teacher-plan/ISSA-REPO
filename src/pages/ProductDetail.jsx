@@ -1,25 +1,39 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
-import { ShoppingCart, Star, Minus, Plus, ChevronRight } from 'lucide-react'
+import { ShoppingCart, Star, Minus, Plus, ChevronRight, Heart } from 'lucide-react'
 import { supabase } from '../lib/supabase'
-import { useCartStore } from '../lib/store'
+import { useCartStore, useAuthStore } from '../lib/store'
+import ReviewForm, { ReviewsList } from '../components/Reviews'
 
 export default function ProductDetail() {
   const { id } = useParams()
   const [product, setProduct] = useState(null)
   const [quantity, setQuantity] = useState(1)
+  const [inWishlist, setInWishlist] = useState(false)
+  const [reviewKey, setReviewKey] = useState(0)
   const addItem = useCartStore((s) => s.addItem)
+  const user = useAuthStore((s) => s.user)
 
   useEffect(() => {
-    supabase
-      .from('products')
-      .select('*')
-      .eq('id', id)
-      .single()
-      .then(({ data }) => {
-        if (data) setProduct(data)
-      })
-  }, [id])
+    supabase.from('products').select('*').eq('id', id).single()
+      .then(({ data }) => { if (data) setProduct(data) })
+
+    if (user) {
+      supabase.from('wishlists').select('id').eq('product_id', id).eq('user_id', user.id).single()
+        .then(({ data }) => setInWishlist(!!data))
+    }
+  }, [id, user])
+
+  const toggleWishlist = async () => {
+    if (!user) { alert('Please sign in to save to wishlist'); return }
+    if (inWishlist) {
+      await supabase.from('wishlists').delete().eq('product_id', id).eq('user_id', user.id)
+      setInWishlist(false)
+    } else {
+      await supabase.from('wishlists').insert({ product_id: id, user_id: user.id })
+      setInWishlist(true)
+    }
+  }
 
   if (!product) {
     return (
@@ -40,12 +54,20 @@ export default function ProductDetail() {
       </nav>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-        <div className="aspect-square bg-gray-100 rounded-xl overflow-hidden">
+        <div className="aspect-square bg-gray-100 rounded-xl overflow-hidden relative group">
           <img
             src={product.image_url || '/placeholder.svg'}
             alt={product.name}
             className="w-full h-full object-cover"
           />
+          <button
+            onClick={toggleWishlist}
+            className={`absolute top-4 right-4 p-2 rounded-full transition-colors ${
+              inWishlist ? 'bg-red-500 text-white' : 'bg-white/80 text-gray-600 hover:bg-white'
+            }`}
+          >
+            <Heart className={`w-5 h-5 ${inWishlist ? 'fill-white' : ''}`} />
+          </button>
         </div>
 
         <div>
@@ -57,43 +79,29 @@ export default function ProductDetail() {
           <div className="flex items-center gap-2 mb-4">
             <div className="flex">
               {[...Array(5)].map((_, i) => (
-                <Star
-                  key={i}
-                  className={`w-5 h-5 ${i < Math.floor(product.rating || 4.5) ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}`}
-                />
+                <Star key={i} className={`w-5 h-5 ${i < Math.floor(product.rating || 4.5) ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}`} />
               ))}
             </div>
-            <span className="text-sm text-gray-600">({product.reviews || 0} reviews)</span>
           </div>
 
           <p className="text-3xl font-bold text-gray-900 mb-6">${product.price}</p>
 
           <p className="text-gray-600 mb-8 leading-relaxed">
-            {product.description || 'Premium quality electronic device with the latest technology. Features include high performance, sleek design, and long-lasting battery life.'}
+            {product.description || 'Premium quality electronic device with the latest technology.'}
           </p>
 
           <div className="flex items-center gap-4 mb-8">
             <div className="flex items-center border border-gray-300 rounded-lg">
-              <button
-                onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                className="p-2 hover:bg-gray-100 transition-colors"
-              >
+              <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="p-2 hover:bg-gray-100 transition-colors">
                 <Minus className="w-5 h-5" />
               </button>
-              <span className="px-4 py-2 font-medium min-w-[3rem] text-center">
-                {quantity}
-              </span>
-              <button
-                onClick={() => setQuantity(quantity + 1)}
-                className="p-2 hover:bg-gray-100 transition-colors"
-              >
+              <span className="px-4 py-2 font-medium min-w-[3rem] text-center">{quantity}</span>
+              <button onClick={() => setQuantity(quantity + 1)} className="p-2 hover:bg-gray-100 transition-colors">
                 <Plus className="w-5 h-5" />
               </button>
             </div>
             <button
-              onClick={() => {
-                for (let i = 0; i < quantity; i++) addItem(product)
-              }}
+              onClick={() => { for (let i = 0; i < quantity; i++) addItem(product) }}
               className="flex-1 flex items-center justify-center gap-2 bg-indigo-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-indigo-700 transition-colors"
             >
               <ShoppingCart className="w-5 h-5" />
@@ -104,9 +112,7 @@ export default function ProductDetail() {
           <div className="border-t border-gray-200 pt-6 space-y-3 text-sm text-gray-600">
             <div className="flex justify-between">
               <span>Availability</span>
-              <span className="text-green-600 font-semibold">
-                {product.stock > 0 ? 'In Stock' : 'Out of Stock'}
-              </span>
+              <span className="text-green-600 font-semibold">{product.stock > 0 ? 'In Stock' : 'Out of Stock'}</span>
             </div>
             <div className="flex justify-between">
               <span>Free shipping</span>
@@ -118,6 +124,11 @@ export default function ProductDetail() {
             </div>
           </div>
         </div>
+      </div>
+
+      <div className="mt-16 space-y-8">
+        <ReviewsList productId={id} key={reviewKey} />
+        <ReviewForm productId={id} onReviewAdded={() => setReviewKey(k => k + 1)} />
       </div>
     </div>
   )

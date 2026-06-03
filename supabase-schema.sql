@@ -32,6 +32,72 @@ CREATE POLICY "Admins can delete"
   USING (auth.role() = 'authenticated');
 
 -- Sample products
+-- Orders table
+CREATE TABLE orders (
+  id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  user_id uuid REFERENCES auth.users(id),
+  items jsonb NOT NULL DEFAULT '[]',
+  total numeric NOT NULL,
+  status text DEFAULT 'pending',
+  shipping_address jsonb,
+  payment_intent text,
+  created_at timestamptz DEFAULT now()
+);
+
+ALTER TABLE orders ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users can view own orders"
+  ON orders FOR SELECT
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Admins can view all orders"
+  ON orders FOR SELECT
+  USING (auth.role() = 'authenticated');
+
+CREATE POLICY "Admins can update orders"
+  ON orders FOR UPDATE
+  USING (auth.role() = 'authenticated');
+
+CREATE POLICY "Anyone can insert orders"
+  ON orders FOR INSERT
+  WITH CHECK (true);
+
+-- Reviews table
+CREATE TABLE reviews (
+  id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  product_id bigint REFERENCES products(id) ON DELETE CASCADE,
+  user_id uuid REFERENCES auth.users(id),
+  rating integer NOT NULL CHECK (rating >= 1 AND rating <= 5),
+  comment text,
+  created_at timestamptz DEFAULT now()
+);
+
+ALTER TABLE reviews ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Anyone can read reviews"
+  ON reviews FOR SELECT
+  USING (true);
+
+CREATE POLICY "Authenticated users can insert reviews"
+  ON reviews FOR INSERT
+  WITH CHECK (auth.role() = 'authenticated');
+
+-- Wishlist table
+CREATE TABLE wishlists (
+  id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  user_id uuid REFERENCES auth.users(id) NOT NULL,
+  product_id bigint REFERENCES products(id) ON DELETE CASCADE NOT NULL,
+  created_at timestamptz DEFAULT now(),
+  UNIQUE(user_id, product_id)
+);
+
+ALTER TABLE wishlists ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users can manage own wishlist"
+  ON wishlists FOR ALL
+  USING (auth.uid() = user_id);
+
+-- Sample products
 INSERT INTO products (name, price, category, image_url, stock, description, rating) VALUES
   ('MacBook Pro 16" M4', 2499, 'Laptops', 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=400', 15, 'Apple M4 chip, 36GB RAM, 1TB SSD', 4.8),
   ('iPhone 16 Pro Max', 1199, 'Phones', 'https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=400', 30, 'A18 Pro chip, 256GB, Titanium frame', 4.7),

@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { ShoppingCart, User, Package } from 'lucide-react'
+import { ShoppingCart, User, Package, Heart, LayoutDashboard } from 'lucide-react'
 import { useCartStore, useAuthStore } from '../lib/store'
 
 export default function Navbar() {
@@ -16,32 +16,27 @@ export default function Navbar() {
           </Link>
 
           <div className="hidden md:flex items-center gap-6">
-            <Link to="/" className="text-gray-600 hover:text-gray-900 transition-colors">
-              Home
-            </Link>
-            <Link to="/products" className="text-gray-600 hover:text-gray-900 transition-colors">
-              Products
-            </Link>
+            <Link to="/" className="text-gray-600 hover:text-gray-900 transition-colors">Home</Link>
+            <Link to="/products" className="text-gray-600 hover:text-gray-900 transition-colors">Products</Link>
           </div>
 
           <div className="flex items-center gap-4">
-            {user?.role === 'admin' && (
-              <Link
-                to="/dashboard"
-                className="text-gray-600 hover:text-gray-900 transition-colors"
-              >
-                Dashboard
-              </Link>
+            {user && (
+              <>
+                <Link to="/orders" className="text-gray-600 hover:text-gray-900 transition-colors" title="My Orders">
+                  <Package className="w-5 h-5" />
+                </Link>
+                {user.role === 'admin' && (
+                  <Link to="/dashboard" className="text-gray-600 hover:text-gray-900 transition-colors" title="Dashboard">
+                    <LayoutDashboard className="w-5 h-5" />
+                  </Link>
+                )}
+              </>
             )}
             {user ? (
-              <Link to="/account" className="text-gray-600 hover:text-gray-900">
-                <User className="w-6 h-6" />
-              </Link>
+              <span className="text-sm text-gray-600">{user.email}</span>
             ) : (
-              <Link
-                to="/login"
-                className="text-sm font-medium text-indigo-600 hover:text-indigo-500"
-              >
+              <Link to="/login" className="text-sm font-medium text-indigo-600 hover:text-indigo-500">
                 Sign In
               </Link>
             )}
