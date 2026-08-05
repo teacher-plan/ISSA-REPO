@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import type {
   Business,
   BusinessSettings,
+  CustomerGrowthWeek,
   Customer,
   LoyaltyProgram,
   Profile,
@@ -10,6 +11,7 @@ import type {
   Subscription,
   SubscriptionPlan,
   SubscriptionStatus,
+  TopReward,
   Transaction,
   WalletCard,
   WalletProviderSettings,
@@ -319,4 +321,55 @@ export async function getAllBusinessesWithSubscriptions(): Promise<
     ...b,
     subscription: byBusinessId.get(b.id) ?? null,
   }));
+}
+
+export async function getTopCustomers(
+  businessId: string,
+  limit = 5
+): Promise<Customer[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("customers")
+    .select("*")
+    .eq("business_id", businessId)
+    .order("total_visits", { ascending: false })
+    .order("total_points", { ascending: false })
+    .limit(limit);
+
+  return data ?? [];
+}
+
+export async function getTopRewards(
+  businessId: string,
+  limit = 5
+): Promise<TopReward[]> {
+  const supabase = await createClient();
+  const { data } = await supabase.rpc("get_top_rewards", {
+    p_business_id: businessId,
+    p_limit: limit,
+  });
+
+  return data ?? [];
+}
+
+export async function getCustomerGrowth(
+  businessId: string,
+  weeks = 8
+): Promise<CustomerGrowthWeek[]> {
+  const supabase = await createClient();
+  const { data } = await supabase.rpc("get_customer_growth", {
+    p_business_id: businessId,
+    p_weeks: weeks,
+  });
+
+  return data ?? [];
+}
+
+export async function getReturnRate(businessId: string): Promise<number> {
+  const supabase = await createClient();
+  const { data } = await supabase.rpc("get_return_rate", {
+    p_business_id: businessId,
+  });
+
+  return data ?? 0;
 }

@@ -11,12 +11,14 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 # Digital Loyalty Wallet SaaS
 
 Multi-tenant SaaS platform for digital loyalty cards (Apple Wallet / Google
-Wallet). Full specification lives in `docs/loyalty-wallet-saas/`. Phases 1-6
+Wallet). Full specification lives in `docs/loyalty-wallet-saas/`. Phases 1-8
 of the roadmap in `docs/loyalty-wallet-saas/09_Development_Roadmap.md` are
 implemented: authentication, business dashboard, the loyalty/points engine,
-customer management, rewards, and wallet integration (PassKit adapter).
-Employees (as actual accounts, not just the "Employee Mode" quick-add UI)
-and subscriptions (Phase 7+) are still to be built.
+customer management, rewards, wallet integration (PassKit adapter),
+subscriptions/plan limits, and analytics. Employees (as actual accounts,
+not just the "Employee Mode" quick-add UI), real billing/payment
+collection, and Phase 9's production-launch checklist are still to be
+built.
 
 ## Commands
 
@@ -75,6 +77,8 @@ app/
     rewards/[id]/              — edit/delete a reward
     subscription/              — business_owner: current plan, trial
                                   countdown, usage vs. limit, plan comparison
+    analytics/                 — business_owner: return rate, customer
+                                  growth chart, top customers, top rewards
   admin/                      — platform admin landing page (stub)
     wallet-provider/           — admin: configure/test the wallet provider
     businesses/                — admin: list all businesses + subscriptions
@@ -103,7 +107,9 @@ lib/
                                  getSubscription(),
                                  getEffectiveSubscriptionStatus(),
                                  getSubscriptionPlans(),
-                                 getAllBusinessesWithSubscriptions()
+                                 getAllBusinessesWithSubscriptions(),
+                                 getTopCustomers(), getTopRewards(),
+                                 getCustomerGrowth(), getReturnRate()
   auth/require-role.ts        — server-side role guard for pages
   auth/redirect-for-role.ts   — where to send a user after login, by role
   wallet/types.ts              — WalletProvider interface (createCard,
@@ -151,6 +157,13 @@ database/migrations/          — plain SQL migrations, applied manually
                                    check_customer_limit() trigger (blocks
                                    customers.insert once over plan limit or
                                    once status is expired/cancelled)
+  0007_analytics.sql            — no new tables; get_top_rewards(),
+                                   get_customer_growth(), get_return_rate()
+                                   RPCs — SECURITY INVOKER (the default, not
+                                   DEFINER like earlier phases), so existing
+                                   RLS on transactions/rewards/customers
+                                   applies naturally with no manual
+                                   ownership check needed
 docs/loyalty-wallet-saas/     — full product/technical spec (source of truth)
 ```
 
