@@ -59,19 +59,24 @@ app/
   auth/check-email/           — shown when email confirmation is required
   onboarding/business/        — first-login step: create the business row
   dashboard/                  — business_owner + customer landing page
+    settings/                 — business_owner: edit business + colors/lang/tz
+    profile/                  — any role: edit own full_name/phone
   employee/                   — employee landing page (stub)
   admin/                      — platform admin landing page (stub)
 lib/
   supabase/client.ts          — browser Supabase client
   supabase/server.ts          — server Supabase client (cookies)
   supabase/proxy.ts           — session refresh + route gating, used by proxy.ts
-  auth/session.ts             — getCurrentUser(), getOwnedBusiness()
+  auth/session.ts             — getCurrentUser(), getOwnedBusiness(),
+                                 getBusinessSettings()
   auth/require-role.ts        — server-side role guard for pages
   auth/redirect-for-role.ts   — where to send a user after login, by role
 types/database.ts             — hand-written Supabase Database type
   (Row/Insert/Update MUST use `type`, not `interface` — an interface fails
   the GenericTable structural check and silently degrades inserts to `never`)
 database/migrations/          — plain SQL migrations, applied manually
+  0001_init.sql                — profiles, businesses
+  0002_business_settings.sql   — business_settings (colors, language, tz)
 docs/loyalty-wallet-saas/     — full product/technical spec (source of truth)
 ```
 
