@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUser, getOwnedBusiness } from "@/lib/auth/session";
+import { syncWalletCard } from "@/lib/wallet/sync";
 
 export interface CustomerFormState {
   error: string | null;
@@ -51,5 +52,12 @@ export async function createCustomer(
   }
 
   revalidatePath("/dashboard/customers");
+
+  // The on_customer_created trigger already provisioned a wallet_cards row
+  // in 'created' state; attempt an immediate sync so the Add-to-Wallet link
+  // is ready without the owner needing a manual retry (best-effort — never
+  // blocks customer creation on a wallet-provider failure).
+  await syncWalletCard(business.id, data.id);
+
   redirect(`/dashboard/customers/${data.id}`);
 }

@@ -102,11 +102,14 @@ export default async function DashboardPage() {
             value={String(stats.rewardsRedeemedCount)}
           />
         </Link>
-        <StatCard label="بطاقات المحفظة النشطة" value="0" />
+        <StatCard
+          label="بطاقات المحفظة النشطة"
+          value={String(stats.activeWalletCardCount)}
+        />
       </div>
 
       <p className="mt-10 text-sm text-zinc-500 dark:text-zinc-500">
-        تكامل المحفظة الرقمية والموظفون والاشتراكات ستُضاف في المراحل القادمة.
+        الموظفون والاشتراكات ستُضاف في المراحل القادمة.
       </p>
     </div>
   );
