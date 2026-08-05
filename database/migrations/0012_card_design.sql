@@ -20,7 +20,16 @@ alter table public.business_settings
 -- get_public_card() gains the theme so /c/[id] can render the customer's card
 -- in their shop's identity. Still display-only: no phone, no email, no owner
 -- info — the same contract as 0005.
-create or replace function public.get_public_card(p_wallet_card_id uuid)
+--
+-- DROP first, not `create or replace`: adding an OUT column changes the
+-- function's return type, and Postgres rejects that with 42P13. Wrapped in a
+-- transaction so the public card page never observes a window where the
+-- function does not exist.
+begin;
+
+drop function if exists public.get_public_card(uuid);
+
+create function public.get_public_card(p_wallet_card_id uuid)
 returns table (
   business_name text,
   business_logo_url text,
@@ -58,4 +67,9 @@ as $$
   where wc.id = p_wallet_card_id;
 $$;
 
+-- DROP discards the function's grants, so they must be re-issued here. Without
+-- this the public card page stops working for unauthenticated visitors — which
+-- is every customer.
 grant execute on function public.get_public_card(uuid) to anon, authenticated;
+
+commit;
