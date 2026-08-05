@@ -61,6 +61,7 @@ app/
   dashboard/                  — business_owner + customer landing page
     settings/                 — business_owner: edit business + colors/lang/tz
     profile/                  — any role: edit own full_name/phone
+    loyalty-program/          — business_owner: create/edit the earning rules
   employee/                   — employee landing page (stub)
   admin/                      — platform admin landing page (stub)
 lib/
@@ -68,7 +69,8 @@ lib/
   supabase/server.ts          — server Supabase client (cookies)
   supabase/proxy.ts           — session refresh + route gating, used by proxy.ts
   auth/session.ts             — getCurrentUser(), getOwnedBusiness(),
-                                 getBusinessSettings()
+                                 getBusinessSettings(), getLoyaltyProgram(),
+                                 getBusinessStats()
   auth/require-role.ts        — server-side role guard for pages
   auth/redirect-for-role.ts   — where to send a user after login, by role
 types/database.ts             — hand-written Supabase Database type
@@ -77,8 +79,24 @@ types/database.ts             — hand-written Supabase Database type
 database/migrations/          — plain SQL migrations, applied manually
   0001_init.sql                — profiles, businesses
   0002_business_settings.sql   — business_settings (colors, language, tz)
+  0003_loyalty_engine.sql      — loyalty_programs, customers, loyalty_cards,
+                                  transactions + record_points_transaction()
+                                  RPC (single write path for points, enforces
+                                  a 30s anti-fraud throttle per customer+type)
 docs/loyalty-wallet-saas/     — full product/technical spec (source of truth)
 ```
+
+## Points engine
+
+All point mutations (earn/redeem/adjustment/refund) go through the
+`record_points_transaction()` Postgres function, never direct table writes —
+see the note in `0003_loyalty_engine.sql`. It re-checks business ownership
+itself (SECURITY DEFINER), rejects a second same-type transaction for the
+same customer within 30 seconds, and keeps `customers.total_points` /
+`loyalty_cards.current_points` in sync with the `transactions` ledger.
+Customer-facing UI (search by phone, employee "add point" quick action) is
+Phase 4; Phase 3 only ships the engine plus the owner's loyalty-program
+settings page.
 
 ## Roles
 
