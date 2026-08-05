@@ -49,6 +49,18 @@ export default async function DashboardPage() {
         </div>
         <div className="flex items-center gap-4">
           <Link
+            href="/dashboard/customers"
+            className="text-sm underline hover:text-zinc-700 dark:hover:text-zinc-300"
+          >
+            العملاء
+          </Link>
+          <Link
+            href="/dashboard/quick-add"
+            className="text-sm underline hover:text-zinc-700 dark:hover:text-zinc-300"
+          >
+            إضافة نقاط سريعة
+          </Link>
+          <Link
             href="/dashboard/loyalty-program"
             className="text-sm underline hover:text-zinc-700 dark:hover:text-zinc-300"
           >
@@ -71,7 +83,9 @@ export default async function DashboardPage() {
       </div>
 
       <div className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-4">
-        <StatCard label="العملاء" value={String(stats.customerCount)} />
+        <Link href="/dashboard/customers">
+          <StatCard label="العملاء" value={String(stats.customerCount)} />
+        </Link>
         <StatCard
           label="النقاط الموزعة"
           value={String(stats.pointsDistributed)}
@@ -81,7 +95,7 @@ export default async function DashboardPage() {
       </div>
 
       <p className="mt-10 text-sm text-zinc-500 dark:text-zinc-500">
-        إدارة العملاء وبرنامج الولاء والموظفين ستُضاف في المراحل القادمة.
+        المكافآت وتكامل المحفظة والموظفون ستُضاف في المراحل القادمة.
       </p>
     </div>
   );
