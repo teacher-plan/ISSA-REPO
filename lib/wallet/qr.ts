@@ -22,3 +22,22 @@ export async function renderCardQrSvg(walletCardId: string): Promise<string> {
     color: { dark: "#000000", light: "#ffffff" },
   });
 }
+
+/**
+ * Renders a business's join code — printed once and left at the counter, so
+ * this is scanned by an ordinary phone camera, not the employee's in-app
+ * scanner. That means it must encode a full, absolute URL: a bare id (what
+ * renderCardQrSvg above encodes) opens nothing when a stock camera app reads
+ * it, since there is no in-app context to resolve a relative path against.
+ */
+export async function renderJoinQrSvg(businessId: string): Promise<string> {
+  const base = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  const url = `${base}/join/${businessId}`;
+  return QRCode.toString(url, {
+    type: "svg",
+    errorCorrectionLevel: "M",
+    margin: 1,
+    width: 320,
+    color: { dark: "#000000", light: "#ffffff" },
+  });
+}

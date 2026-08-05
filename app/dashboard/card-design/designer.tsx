@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useActionState } from "react";
 import { LoyaltyCardVisual } from "@/components/brand/loyalty-card";
 import { BUSINESS_KIND_LABELS } from "@/lib/card-design/kinds";
@@ -24,11 +25,16 @@ export function CardDesigner({
   savedTheme,
   savedKind,
   rewardThreshold,
+  nextHref,
 }: {
   businessName: string;
   savedTheme: CardTheme | null;
   savedKind: string | null;
   rewardThreshold: number | null;
+  /** Onboarding only: where "متابعة" goes once a design is adopted. Omitted
+   * on the regular dashboard page, where adopting a design is a standalone
+   * action with nowhere further to go. */
+  nextHref?: string;
 }) {
   const [design, generateAction, generating] = useActionState(
     generateDesign,
@@ -166,12 +172,19 @@ export function CardDesigner({
         )}
 
         {save.success && !isDraft && (
-          <p
-            role="status"
-            className="mt-4 rounded-lg border-r-4 border-success-500 bg-success-50 p-3 text-sm text-success-800"
-          >
-            تم اعتماد التصميم — سيظهر على بطاقات عملائك.
-          </p>
+          <div className="mt-4 rounded-lg border-r-4 border-success-500 bg-success-50 p-3">
+            <p role="status" className="text-sm text-success-800">
+              تم اعتماد التصميم — سيظهر على بطاقات عملائك.
+            </p>
+            {nextHref && (
+              <Link
+                href={nextHref}
+                className="mt-3 inline-flex min-h-touch items-center rounded-full bg-brand-800 px-5 text-sm font-semibold text-white hover:bg-brand-900"
+              >
+                متابعة ←
+              </Link>
+            )}
+          </div>
         )}
       </div>
     </div>

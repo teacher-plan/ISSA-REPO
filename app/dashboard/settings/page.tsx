@@ -6,6 +6,8 @@ import {
   getBusinessSettings,
   getOwnedBusiness,
 } from "@/lib/auth/session";
+import { renderJoinQrSvg } from "@/lib/wallet/qr";
+import { CopyLinkButton } from "@/components/copy-link-button";
 import { BusinessSettingsForm } from "./form";
 
 export default async function BusinessSettingsPage() {
@@ -16,10 +18,12 @@ export default async function BusinessSettingsPage() {
     redirect("/onboarding/business");
   }
 
-  const [settings, activeProvider] = await Promise.all([
+  const [settings, activeProvider, qrSvg] = await Promise.all([
     getBusinessSettings(business.id),
     getActiveWalletProviderSettings(),
+    renderJoinQrSvg(business.id),
   ]);
+  const joinUrl = `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/join/${business.id}`;
 
   return (
     <div className="mx-auto max-w-2xl px-6 py-12">
@@ -36,6 +40,28 @@ export default async function BusinessSettingsPage() {
       <p className="mt-2 text-sm text-primary-600 dark:text-primary-400">
         عدّل بيانات محلك ومظهر بطاقة الولاء.
       </p>
+
+      <h2 className="mt-8 text-sm font-medium text-primary-500">
+        رمز انضمام العملاء
+      </h2>
+      <div className="mt-3 flex flex-col items-center gap-3 rounded-xl border border-primary-200 p-5 dark:border-primary-800 sm:flex-row sm:items-start">
+        <div
+          className="w-full max-w-[140px] shrink-0 [&>svg]:h-auto [&>svg]:w-full"
+          dangerouslySetInnerHTML={{ __html: qrSvg }}
+        />
+        <div className="text-center sm:text-right">
+          <p className="text-sm text-primary-600 dark:text-primary-400">
+            الرمز نفسه الذي عرضناه لك عند إنشاء الحساب — ضعه عند الكاشير،
+            وأي عميل يمسحه يحصل على بطاقة ولاء في محفظته مباشرة.
+          </p>
+          <p dir="ltr" className="mt-2 break-all text-xs text-primary-500">
+            {joinUrl}
+          </p>
+          <div className="mt-3">
+            <CopyLinkButton url={joinUrl} />
+          </div>
+        </div>
+      </div>
 
       <BusinessSettingsForm
         business={business}

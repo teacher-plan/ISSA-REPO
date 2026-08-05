@@ -4,7 +4,11 @@ import { NextResponse, type NextRequest } from "next/server";
 const PUBLIC_PATHS = ["/", "/auth/login", "/auth/register", "/auth/check-email"];
 
 function isPublicPath(pathname: string) {
-  return PUBLIC_PATHS.includes(pathname) || pathname.startsWith("/c/");
+  return (
+    PUBLIC_PATHS.includes(pathname) ||
+    pathname.startsWith("/c/") ||
+    pathname.startsWith("/join/")
+  );
 }
 
 export async function updateSession(request: NextRequest) {

@@ -175,6 +175,14 @@ export type PublicCard = {
   card_business_kind: string | null;
 };
 
+/** Row shape of get_public_business() — the /join/[businessId] preview. */
+export type PublicBusiness = {
+  business_name: string;
+  business_logo_url: string | null;
+  /** See BusinessSettings.card_theme — parse, don't cast. */
+  card_theme: unknown;
+};
+
 /**
  * Row shape of resolve_wallet_card() — what an employee learns from scanning
  * the QR on a customer's wallet pass. Returns 0 rows when the card belongs to
@@ -365,6 +373,14 @@ export type Database = {
       get_public_card: {
         Args: { p_wallet_card_id: string };
         Returns: PublicCard[];
+      };
+      get_public_business: {
+        Args: { p_business_id: string };
+        Returns: PublicBusiness[];
+      };
+      public_join_business: {
+        Args: { p_business_id: string; p_name: string; p_phone: string };
+        Returns: { wallet_card_id: string }[];
       };
       resolve_wallet_card: {
         Args: { p_wallet_card_id: string };
