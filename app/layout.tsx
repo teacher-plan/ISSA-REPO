@@ -56,7 +56,7 @@ export const viewport: Viewport = {
   // out anyone who needs to magnify the screen.
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-    { media: "(prefers-color-scheme: dark)", color: "#0f172a" },
+    { media: "(prefers-color-scheme: dark)", color: "#052622" },
   ],
 };
 

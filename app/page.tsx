@@ -3,18 +3,18 @@ import { Wordmark } from "@/components/brand/brand-mark";
 import { LoyaltyCardVisual } from "@/components/brand/loyalty-card";
 
 /**
- * The landing page commits to the dark ink ground in both colour schemes.
+ * The landing page commits to the brand green in both colour schemes.
  * Everywhere else follows the viewer's theme, but this is the one surface
  * whose job is to state what the brand looks like, and a hero that changes
  * character between light and dark states nothing.
  */
 export default function Home() {
   return (
-    <main className="relative flex min-h-screen flex-1 flex-col overflow-hidden bg-primary-900 text-white">
+    <main className="relative flex min-h-screen flex-1 flex-col overflow-hidden bg-brand-900 text-white">
       {/* Warm glow behind the card — the gold reads as light rather than paint. */}
       <div
         className="pointer-events-none absolute -top-32 left-1/2 h-[520px] w-[520px] -translate-x-1/2 rounded-full opacity-25 blur-3xl"
-        style={{ background: "radial-gradient(circle, #f59e0b 0%, transparent 70%)" }}
+        style={{ background: "radial-gradient(circle, #d7a34c 0%, transparent 70%)" }}
       />
 
       <header className="relative z-10 mx-auto flex w-full max-w-5xl items-center justify-between px-5 py-6 sm:px-8">
@@ -48,7 +48,7 @@ export default function Home() {
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center lg:justify-start">
             <Link
               href="/auth/register"
-              className="min-h-touch flex items-center justify-center rounded-full bg-accent-500 px-8 text-base font-bold text-primary-900 shadow-gold transition-colors hover:bg-accent-400"
+              className="min-h-touch flex items-center justify-center rounded-full bg-accent-500 px-8 text-base font-bold text-brand-900 shadow-gold transition-colors hover:bg-accent-400"
             >
               ابدأ مجانًا 14 يوم
             </Link>

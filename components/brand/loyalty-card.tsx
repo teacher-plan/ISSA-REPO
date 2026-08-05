@@ -1,4 +1,4 @@
-import { DEFAULT_THEME, sanitizeTheme, type CardTheme } from "@/lib/card-design/theme";
+import { DARK_INK, DEFAULT_THEME, sanitizeTheme, type CardTheme } from "@/lib/card-design/theme";
 
 /** Repeating textures, kept subtle enough not to compete with the balance. */
 function patternStyle(
@@ -52,11 +52,11 @@ export function LoyaltyCardVisual({
   // Tailwind classes — a class name built at runtime is not in the source at
   // build time and Tailwind never generates it.
   // No theme still means DEFAULT_THEME, not "improvise" — that is what carries
-  // the dark-ink-on-gold decision (white measures 1.67:1 on this gradient) to
+  // the dark-ink-on-gold decision (white measures 2.27:1 on this gradient) to
   // every un-themed card.
   const t = sanitizeTheme(theme ?? DEFAULT_THEME).theme;
   const dark = t.textOn === "dark";
-  const ink = dark ? "#0f172a" : "#ffffff";
+  const ink = dark ? DARK_INK : "#ffffff";
   const dot = t.accent;
   const total = threshold && threshold > 0 ? threshold : null;
   // Stamps are capped at 10 dots: past that the row stops reading as a glance

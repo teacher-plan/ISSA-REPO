@@ -25,16 +25,32 @@
   --color-primary-800: #1f2937;
   --color-primary-900: #111827;
 
-  /* Accent — gold. Reserved for loyalty points and rewards. */
-  --color-accent-50: #fffbeb;
-  --color-accent-100: #fef3c7;
-  --color-accent-200: #fde68a;
-  --color-accent-300: #fcd34d;
-  --color-accent-400: #fbbf24;
-  --color-accent-500: #f59e0b;
-  --color-accent-600: #d97706;
-  --color-accent-700: #b45309;
-  --color-accent-800: #92400e;
+  /* Brand green — sampled from the app icon (#093832 tile, #d7a34c card).
+     This is the identity's ground: hero surfaces, headers, the icon tile.
+     Kept separate from `primary` because primary carries body text, and text
+     in a saturated green reads as a mistake rather than as branding. */
+  --color-brand-50: #f2f8f7;
+  --color-brand-100: #dcece9;
+  --color-brand-200: #b9d8d2;
+  --color-brand-300: #8bbcb3;
+  --color-brand-400: #579a8f;
+  --color-brand-500: #2f7a6e;
+  --color-brand-600: #1c6055;
+  --color-brand-700: #124a42;
+  --color-brand-800: #093832;
+  --color-brand-900: #052622;
+
+  /* Accent — gold, matched to the card face in the icon rather than to
+     Tailwind's amber. Reserved for loyalty points and rewards. */
+  --color-accent-50: #fdf8ee;
+  --color-accent-100: #f9edd3;
+  --color-accent-200: #f2dba7;
+  --color-accent-300: #e8c277;
+  --color-accent-400: #ddb05d;
+  --color-accent-500: #d7a34c;
+  --color-accent-600: #b8853a;
+  --color-accent-700: #94682d;
+  --color-accent-800: #6f4d22;
 
   /* Success — points earned */
   --color-success-50: #ecfdf5;

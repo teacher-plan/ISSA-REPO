@@ -45,13 +45,22 @@ export type CardTheme = z.infer<typeof cardThemeSchema>;
  * stop. The card shipped with white text until a contrast sweep caught it.
  */
 export const DEFAULT_THEME: CardTheme = {
-  backgroundFrom: "#fbbf24",
-  backgroundTo: "#d97706",
-  accent: "#7c2d12",
+  backgroundFrom: "#ddb05d",
+  backgroundTo: "#b8853a",
+  accent: "#093832",
   textOn: "dark",
   pattern: "none",
   tagline: "",
 };
+
+/**
+ * The ink used when a theme calls for dark text.
+ *
+ * The brand green rather than a neutral near-black: on the gold card it
+ * measures 5.69:1, and it is the same pairing the app icon uses — a green
+ * crown on a gold card face.
+ */
+export const DARK_INK = "#093832";
 
 const HEX = /^#[0-9a-f]{6}$/i;
 

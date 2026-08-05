@@ -1,9 +1,15 @@
 #!/usr/bin/env node
 
 /**
- * Generate PWA icons from SVG source
+ * Generates the PWA icon set from the brand master.
+ *
+ * Prefers public/icon-master.png (the supplied brand artwork) and falls back to
+ * public/icon.svg. To change the app icon, replace the master and re-run —
+ * every size, including the Android maskable variants, is derived from it, so
+ * the sizes can never drift out of sync with each other.
+ *
  * Requires: npm install --save-dev sharp
- * Usage: node generate-icons.js
+ * Usage: npm run generate-icons
  */
 
 const sharp = require('sharp');
@@ -11,7 +17,14 @@ const fs = require('fs');
 const path = require('path');
 
 const PUBLIC_DIR = path.join(__dirname, '..', 'public');
+const MASTER_PNG = path.join(PUBLIC_DIR, 'icon-master.png');
 const SOURCE_SVG = path.join(PUBLIC_DIR, 'icon.svg');
+const SOURCE = fs.existsSync(MASTER_PNG) ? MASTER_PNG : SOURCE_SVG;
+
+// The brand tile's own green, sampled from the artwork. Maskable icons are
+// cropped to a circle by Android, so the padding behind the art must be the
+// tile colour — grey or transparent padding shows as a ring.
+const BRAND_GREEN = { r: 9, g: 56, b: 50, alpha: 1 };
 
 // Define icon sizes
 const iconSizes = [
@@ -31,9 +44,9 @@ async function generateIcons() {
     console.log('🎨 Generating PWA icons from SVG...\n');
 
     // Check if source SVG exists
-    if (!fs.existsSync(SOURCE_SVG)) {
-      console.error(`❌ Source SVG not found: ${SOURCE_SVG}`);
-      console.error('Please create public/icon.svg first');
+    if (!fs.existsSync(SOURCE)) {
+      console.error(`❌ Source artwork not found: ${SOURCE}`);
+      console.error('Add public/icon-master.png (brand artwork) or public/icon.svg');
       process.exit(1);
     }
 
@@ -42,7 +55,7 @@ async function generateIcons() {
       const outputPath = path.join(PUBLIC_DIR, icon.name);
       console.log(`  Generating ${icon.name} (${icon.size}x${icon.size})...`);
 
-      await sharp(SOURCE_SVG)
+      await sharp(SOURCE)
         .resize(icon.size, icon.size, {
           fit: 'contain',
           background: { r: 255, g: 255, b: 255, alpha: 0.0 },
@@ -67,12 +80,12 @@ async function generateIcons() {
           width: canvasSize,
           height: canvasSize,
           channels: 4,
-          background: { r: 31, g: 41, b: 55, alpha: 1.0 }, // primary-800
+          background: BRAND_GREEN,
         },
       })
         .composite([
           {
-            input: await sharp(SOURCE_SVG)
+            input: await sharp(SOURCE)
               .resize(icon.size, icon.size, {
                 fit: 'contain',
                 background: { r: 255, g: 255, b: 255, alpha: 0.0 },
