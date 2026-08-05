@@ -108,3 +108,40 @@ export async function addPointsTransaction(
 
   return { error: null, success: true };
 }
+
+export async function redeemRewardForCustomer(
+  customerId: string,
+  _prevState: CustomerActionState,
+  formData: FormData
+): Promise<CustomerActionState> {
+  const { business } = await requireOwnerAndCustomer(customerId);
+
+  const rewardId = String(formData.get("reward_id") ?? "");
+  if (!rewardId) {
+    return { error: "اختر مكافأة.", success: false };
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("redeem_reward", {
+    p_business_id: business.id,
+    p_customer_id: customerId,
+    p_reward_id: rewardId,
+  });
+
+  if (error) {
+    const message = error.message.includes("throttled")
+      ? "تم تسجيل عملية مماثلة قبل قليل، الرجاء الانتظار ثم المحاولة مرة أخرى."
+      : error.message.includes("not enough points")
+        ? "لا يملك العميل نقاطًا كافية لهذه المكافأة."
+        : error.message.includes("out of stock")
+          ? "المكافأة غير متوفرة حاليًا."
+          : error.message;
+    return { error: message, success: false };
+  }
+
+  revalidatePath(`/dashboard/customers/${customerId}`);
+  revalidatePath("/dashboard/rewards");
+  revalidatePath("/dashboard");
+
+  return { error: null, success: true };
+}

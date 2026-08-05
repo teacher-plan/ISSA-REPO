@@ -6,9 +6,11 @@ import {
   getCustomerTransactions,
   getLoyaltyProgram,
   getOwnedBusiness,
+  getRewards,
 } from "@/lib/auth/session";
 import { EditCustomerForm } from "./edit-form";
 import { AddPointsForm } from "./points-form";
+import { RedeemRewardForm } from "./redeem-form";
 
 const TYPE_LABELS: Record<string, string> = {
   earn: "إضافة",
@@ -35,9 +37,10 @@ export default async function CustomerProfilePage({
     redirect("/dashboard/customers");
   }
 
-  const [transactions, program] = await Promise.all([
+  const [transactions, program, rewards] = await Promise.all([
     getCustomerTransactions(customer.id),
     getLoyaltyProgram(business.id),
+    getRewards(business.id, { activeOnly: true }),
   ]);
 
   return (
@@ -67,6 +70,13 @@ export default async function CustomerProfilePage({
 
       <h2 className="mt-8 text-sm font-medium text-zinc-500">تسجيل عملية</h2>
       <AddPointsForm customerId={customer.id} program={program} />
+
+      <h2 className="mt-8 text-sm font-medium text-zinc-500">استبدال مكافأة</h2>
+      <RedeemRewardForm
+        customerId={customer.id}
+        rewards={rewards}
+        customerPoints={customer.total_points}
+      />
 
       <h2 className="mt-8 text-sm font-medium text-zinc-500">بيانات العميل</h2>
       <EditCustomerForm customer={customer} />

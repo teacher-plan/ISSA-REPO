@@ -5,8 +5,10 @@ import {
   getCustomerByPhone,
   getLoyaltyProgram,
   getOwnedBusiness,
+  getRewards,
 } from "@/lib/auth/session";
 import { AddPointsForm } from "../customers/[id]/points-form";
+import { RedeemRewardForm } from "../customers/[id]/redeem-form";
 
 export default async function QuickAddPage({
   searchParams,
@@ -23,6 +25,9 @@ export default async function QuickAddPage({
   const { phone } = await searchParams;
   const customer = phone ? await getCustomerByPhone(business.id, phone) : null;
   const program = await getLoyaltyProgram(business.id);
+  const rewards = customer
+    ? await getRewards(business.id, { activeOnly: true })
+    : [];
 
   return (
     <div className="mx-auto max-w-md px-6 py-12">
@@ -84,6 +89,13 @@ export default async function QuickAddPage({
           </div>
 
           <AddPointsForm customerId={customer.id} program={program} />
+
+          <h2 className="mt-6 text-sm font-medium text-zinc-500">استبدال مكافأة</h2>
+          <RedeemRewardForm
+            customerId={customer.id}
+            rewards={rewards}
+            customerPoints={customer.total_points}
+          />
 
           <Link
             href={`/dashboard/customers/${customer.id}`}

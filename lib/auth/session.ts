@@ -6,6 +6,7 @@ import type {
   Customer,
   LoyaltyProgram,
   Profile,
+  Reward,
   Transaction,
 } from "@/types/database";
 
@@ -44,10 +45,15 @@ export async function getOwnedBusiness(
 export async function getBusinessStats(businessId: string): Promise<{
   customerCount: number;
   pointsDistributed: number;
+  rewardsRedeemedCount: number;
 }> {
   const supabase = await createClient();
 
-  const [{ count: customerCount }, { data: earnTx }] = await Promise.all([
+  const [
+    { count: customerCount },
+    { data: earnTx },
+    { count: rewardsRedeemedCount },
+  ] = await Promise.all([
     supabase
       .from("customers")
       .select("*", { count: "exact", head: true })
@@ -57,6 +63,11 @@ export async function getBusinessStats(businessId: string): Promise<{
       .select("points")
       .eq("business_id", businessId)
       .eq("type", "earn"),
+    supabase
+      .from("transactions")
+      .select("*", { count: "exact", head: true })
+      .eq("business_id", businessId)
+      .not("reward_id", "is", null),
   ]);
 
   const pointsDistributed = (earnTx ?? []).reduce(
@@ -64,7 +75,11 @@ export async function getBusinessStats(businessId: string): Promise<{
     0
   );
 
-  return { customerCount: customerCount ?? 0, pointsDistributed };
+  return {
+    customerCount: customerCount ?? 0,
+    pointsDistributed,
+    rewardsRedeemedCount: rewardsRedeemedCount ?? 0,
+  };
 }
 
 export async function getLoyaltyProgram(
@@ -155,4 +170,38 @@ export async function getCustomerTransactions(
     .order("created_at", { ascending: false });
 
   return data ?? [];
+}
+
+export async function getRewards(
+  businessId: string,
+  { activeOnly = false }: { activeOnly?: boolean } = {}
+): Promise<Reward[]> {
+  const supabase = await createClient();
+  let query = supabase
+    .from("rewards")
+    .select("*")
+    .eq("business_id", businessId)
+    .order("points_required", { ascending: true });
+
+  if (activeOnly) {
+    query = query.eq("is_active", true);
+  }
+
+  const { data } = await query;
+  return data ?? [];
+}
+
+export async function getReward(
+  businessId: string,
+  rewardId: string
+): Promise<Reward | null> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("rewards")
+    .select("*")
+    .eq("business_id", businessId)
+    .eq("id", rewardId)
+    .maybeSingle();
+
+  return data ?? null;
 }
