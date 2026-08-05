@@ -36,12 +36,40 @@ export async function saveWalletProvider(
   const apiKey = String(formData.get("api_key") ?? "").trim();
   const apiSecret = String(formData.get("api_secret") ?? "").trim();
 
+  if (providerName !== "passkit" && providerName !== "google") {
+    return { error: "مزوّد غير معروف.", success: false, testResult: null };
+  }
+
   if (!apiKey || !apiSecret) {
     return {
-      error: "مفتاح API والسر مطلوبان.",
+      error:
+        providerName === "google"
+          ? "Issuer ID وملف حساب الخدمة مطلوبان."
+          : "مفتاح API والسر مطلوبان.",
       success: false,
       testResult: null,
     };
+  }
+
+  // Catch a malformed service-account file here rather than letting every
+  // later card sync fail one by one with an opaque error.
+  if (providerName === "google") {
+    try {
+      const parsed = JSON.parse(apiSecret) as Record<string, unknown>;
+      if (!parsed.client_email || !parsed.private_key) {
+        return {
+          error: "ملف حساب الخدمة ناقص — يجب أن يحتوي على client_email و private_key.",
+          success: false,
+          testResult: null,
+        };
+      }
+    } catch {
+      return {
+        error: "ملف حساب الخدمة ليس JSON صالحًا. الصق محتوى الملف كاملًا.",
+        success: false,
+        testResult: null,
+      };
+    }
   }
 
   const supabase = await createClient();

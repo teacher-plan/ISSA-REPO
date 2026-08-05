@@ -1,6 +1,6 @@
 import "server-only";
 import { createClient } from "@/lib/supabase/server";
-import { getActiveProvider } from "./provider-registry";
+import { getActiveProviderSettings, instantiateProvider } from "./provider-registry";
 import type { WalletCardData } from "./types";
 
 /**
@@ -28,8 +28,8 @@ export async function syncWalletCard(
 
   if (!walletCard) return;
 
-  const provider = await getActiveProvider();
-  if (!provider) {
+  const settingsRow = await getActiveProviderSettings();
+  if (!settingsRow) {
     await supabase
       .from("wallet_cards")
       .update({
@@ -39,6 +39,7 @@ export async function syncWalletCard(
       .eq("id", walletCard.id);
     return;
   }
+  const provider = instantiateProvider(settingsRow);
 
   const [{ data: customer }, { data: business }, { data: settings }, { data: program }] =
     await Promise.all([
@@ -65,6 +66,7 @@ export async function syncWalletCard(
     .eq("id", walletCard.id);
 
   const cardData: WalletCardData = {
+    walletCardId: walletCard.id,
     business: {
       name: business.name,
       logoUrl: business.logo_url,
@@ -83,16 +85,24 @@ export async function syncWalletCard(
     walletTemplate: {
       programId: settings?.passkit_program_id ?? null,
       tierId: settings?.passkit_tier_id ?? null,
+      googleClassId: settings?.google_wallet_class_id ?? null,
     },
   };
 
-  if (!cardData.walletTemplate.programId || !cardData.walletTemplate.tierId) {
+  // Each provider needs a different template id, so the "not set up yet"
+  // check has to be per-provider — a Google-only shop has no PassKit Program
+  // ID and must not be told to go enter one.
+  const missingTemplate =
+    settingsRow.provider_name === "google"
+      ? !cardData.walletTemplate.googleClassId &&
+        "لم يتم ربط قالب Google Wallet لهذا المحل بعد. أدخل Class ID في إعدادات المحل."
+      : (!cardData.walletTemplate.programId || !cardData.walletTemplate.tierId) &&
+        "لم يتم ربط قالب PassKit لهذا المحل بعد. أدخل Program ID وTier ID في إعدادات المحل.";
+
+  if (missingTemplate) {
     await supabase
       .from("wallet_cards")
-      .update({
-        sync_status: "failed",
-        last_error: "لم يتم ربط قالب Apple/Google Wallet لهذا المحل بعد. أدخل PassKit Program ID وTier ID في إعدادات المحل.",
-      })
+      .update({ sync_status: "failed", last_error: missingTemplate })
       .eq("id", walletCard.id);
     return;
   }
@@ -105,7 +115,7 @@ export async function syncWalletCard(
     await supabase
       .from("wallet_cards")
       .update({
-        provider_name: "passkit",
+        provider_name: settingsRow.provider_name,
         external_card_id: result.externalCardId,
         wallet_url_apple: result.walletUrlApple,
         wallet_url_google: result.walletUrlGoogle,

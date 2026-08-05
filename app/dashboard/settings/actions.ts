@@ -36,6 +36,8 @@ export async function updateBusinessSettings(
   const secondaryColor = String(formData.get("secondary_color") ?? "#f4f4f5");
   const passkitProgramId = String(formData.get("passkit_program_id") ?? "").trim() || null;
   const passkitTierId = String(formData.get("passkit_tier_id") ?? "").trim() || null;
+  const googleWalletClassId =
+    String(formData.get("google_wallet_class_id") ?? "").trim() || null;
 
   if (!name) {
     return { error: "اسم المحل مطلوب.", success: false };
@@ -67,6 +69,7 @@ export async function updateBusinessSettings(
         secondary_color: secondaryColor,
         passkit_program_id: passkitProgramId,
         passkit_tier_id: passkitTierId,
+        google_wallet_class_id: googleWalletClassId,
       },
       { onConflict: "business_id" }
     );

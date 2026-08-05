@@ -1,4 +1,10 @@
 export type WalletCardData = {
+  /**
+   * The wallet_cards row id. This is the value encoded in the pass's QR
+   * barcode, and it is what /employee/scan resolves back to a customer — so
+   * a provider that drops it produces a pass that cannot earn points.
+   */
+  walletCardId: string;
   business: {
     name: string;
     logoUrl: string | null;
@@ -15,14 +21,19 @@ export type WalletCardData = {
     rewardThreshold: number | null;
   };
   /**
-   * Per-business PassKit Program + Tier — the pass template the business
-   * owner designed in PassKit's own dashboard (see business_settings
-   * .passkit_program_id/.passkit_tier_id). null until the owner sets it up;
-   * providers should fail clearly rather than guess a template.
+   * The per-business pass template. Each provider names it differently and
+   * uses only its own fields:
+   *   - PassKit: Program + Tier, created in PassKit's dashboard
+   *     (business_settings.passkit_program_id / .passkit_tier_id)
+   *   - Google Wallet: a LoyaltyClass id
+   *     (business_settings.google_wallet_class_id)
+   * All null until the owner sets it up; providers fail with a clear message
+   * rather than guessing a template.
    */
   walletTemplate: {
     programId: string | null;
     tierId: string | null;
+    googleClassId: string | null;
   };
 };
 

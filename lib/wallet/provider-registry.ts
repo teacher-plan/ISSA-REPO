@@ -1,5 +1,6 @@
 import "server-only";
 import { createServiceClient } from "@/lib/supabase/service";
+import { GoogleWalletProvider } from "./providers/google";
 import { PassKitProvider } from "./providers/passkit";
 import type { WalletProvider } from "./types";
 import type { WalletProviderSettings } from "@/types/database";
@@ -27,6 +28,12 @@ export function instantiateProvider(
   switch (settings.provider_name) {
     case "passkit":
       return new PassKitProvider(settings.api_key, settings.api_secret);
+    // Google reuses the same two columns: api_key holds the Issuer ID, and
+    // api_secret the service-account JSON. Adding provider-specific columns
+    // would mean a schema change per provider, which is exactly what the
+    // WalletProvider interface exists to avoid.
+    case "google":
+      return new GoogleWalletProvider(settings.api_key, settings.api_secret);
     default:
       throw new Error(`Unknown wallet provider: ${settings.provider_name}`);
   }

@@ -156,6 +156,25 @@ export function BusinessSettingsForm({
         </div>
       </div>
 
+      <div className="flex flex-col gap-1.5">
+        <label htmlFor="google_wallet_class_id" className="text-sm font-medium">
+          Google Wallet Class ID
+        </label>
+        <p className="text-xs text-zinc-500">
+          إن كانت المنصة تستخدم Google Wallet مباشرة، أدخل معرّف الـ LoyaltyClass
+          الخاص بمحلك بدل حقول PassKit أعلاه.
+        </p>
+        <input
+          id="google_wallet_class_id"
+          name="google_wallet_class_id"
+          type="text"
+          dir="ltr"
+          placeholder="3388000000022xxxxxx.my-shop-loyalty"
+          defaultValue={settings?.google_wallet_class_id ?? ""}
+          className="rounded-md border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+        />
+      </div>
+
       {state.error && (
         <p className="text-sm text-red-600" role="alert">
           {state.error}

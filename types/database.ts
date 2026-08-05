@@ -37,6 +37,8 @@ export type BusinessSettings = {
   timezone: string;
   passkit_program_id: string | null;
   passkit_tier_id: string | null;
+  /** Google Wallet LoyaltyClass id — the Google equivalent of Program+Tier. */
+  google_wallet_class_id: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -110,7 +112,7 @@ export type Reward = {
   updated_at: string;
 };
 
-export type WalletProviderName = "passkit";
+export type WalletProviderName = "passkit" | "google";
 
 export type WalletProviderSettings = {
   id: string;

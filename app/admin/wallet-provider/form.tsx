@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import {
   deactivateWalletProvider,
   saveWalletProvider,
@@ -28,6 +28,12 @@ export function WalletProviderForm({
     testWalletConnection,
     initialState
   );
+
+  // The two credential columns mean different things per provider, so the
+  // labels and input types switch with the selection rather than asking an
+  // admin to guess that "API Secret" means a JSON key file.
+  const [provider, setProvider] = useState<"passkit" | "google">("passkit");
+  const isGoogle = provider === "google";
 
   return (
     <div className="mt-8 flex flex-col gap-8">
@@ -62,16 +68,23 @@ export function WalletProviderForm({
           <select
             id="provider_name"
             name="provider_name"
-            defaultValue="passkit"
+            value={provider}
+            onChange={(e) => setProvider(e.target.value as "passkit" | "google")}
             className="rounded-md border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
           >
-            <option value="passkit">PassKit</option>
+            <option value="passkit">PassKit (Apple + Google)</option>
+            <option value="google">Google Wallet (مباشر)</option>
           </select>
+          <p className="text-xs text-zinc-500">
+            {isGoogle
+              ? "مجاني — يحتاج حساب Issuer من Google Pay & Wallet Console فقط، بدون رسوم سنوية."
+              : "يتطلب حساب مطور Apple ($99/سنة) بالإضافة إلى اشتراك PassKit."}
+          </p>
         </div>
 
         <div className="flex flex-col gap-1.5">
           <label htmlFor="api_key" className="text-sm font-medium">
-            API Key
+            {isGoogle ? "Issuer ID" : "API Key"}
           </label>
           <input
             id="api_key"
@@ -79,22 +92,40 @@ export function WalletProviderForm({
             type="text"
             required
             dir="ltr"
+            placeholder={isGoogle ? "3388000000022xxxxxx" : undefined}
             className="rounded-md border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
           />
         </div>
 
         <div className="flex flex-col gap-1.5">
           <label htmlFor="api_secret" className="text-sm font-medium">
-            API Secret
+            {isGoogle ? "Service Account JSON" : "API Secret"}
           </label>
-          <input
-            id="api_secret"
-            name="api_secret"
-            type="password"
-            required
-            dir="ltr"
-            className="rounded-md border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
-          />
+          {isGoogle ? (
+            <textarea
+              id="api_secret"
+              name="api_secret"
+              required
+              dir="ltr"
+              rows={6}
+              placeholder={'{\n  "client_email": "...",\n  "private_key": "-----BEGIN PRIVATE KEY-----..."\n}'}
+              className="rounded-md border border-zinc-300 px-3 py-2 font-mono text-xs dark:border-zinc-700 dark:bg-zinc-900"
+            />
+          ) : (
+            <input
+              id="api_secret"
+              name="api_secret"
+              type="password"
+              required
+              dir="ltr"
+              className="rounded-md border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+            />
+          )}
+          {isGoogle && (
+            <p className="text-xs text-zinc-500">
+              الصق محتوى ملف مفتاح حساب الخدمة كاملًا كما نزّلته من Google Cloud.
+            </p>
+          )}
         </div>
 
         {saveState.error && (
