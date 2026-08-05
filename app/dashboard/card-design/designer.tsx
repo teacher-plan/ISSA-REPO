@@ -132,7 +132,7 @@ export function CardDesigner({
         </p>
 
         <LoyaltyCardVisual
-          className="mt-3"
+          className="mt-3 min-h-[440px]"
           businessName={businessName}
           holderName="سارة المعمري"
           points={7}

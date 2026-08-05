@@ -82,6 +82,7 @@ export default function Home() {
         <div className="mx-auto w-full max-w-sm lg:mx-0">
           <div className="rotate-[-3deg] transition-transform hover:rotate-0">
             <LoyaltyCardVisual
+              className="min-h-[420px]"
               businessName="بن سيرا للقهوة"
               holderName="سارة المعمري"
               points={7}
