@@ -10,10 +10,13 @@ export default async function AdminPage() {
       <h1 className="text-xl font-semibold">
         لوحة تحكم المنصة — {profile.full_name || profile.email}
       </h1>
-      <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
-        إدارة المحلات والاشتراكات ستُضاف في مراحل لاحقة.
-      </p>
       <div className="mt-6 flex flex-col items-center gap-3">
+        <Link
+          href="/admin/businesses"
+          className="text-sm underline hover:text-zinc-700 dark:hover:text-zinc-300"
+        >
+          المحلات والاشتراكات
+        </Link>
         <Link
           href="/admin/wallet-provider"
           className="text-sm underline hover:text-zinc-700 dark:hover:text-zinc-300"

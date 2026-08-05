@@ -161,6 +161,31 @@ export type PublicCard = {
   sync_status: WalletCardSyncStatus;
 };
 
+export type PlanName = "starter" | "professional" | "enterprise";
+
+export type SubscriptionPlan = {
+  plan_name: PlanName;
+  display_name: string;
+  price_omr: number;
+  customer_limit: number | null;
+  trial_days: number;
+  created_at: string;
+  updated_at: string;
+};
+
+export type SubscriptionStatus = "trial" | "active" | "expired" | "cancelled";
+
+export type Subscription = {
+  id: string;
+  business_id: string;
+  plan_name: PlanName;
+  status: SubscriptionStatus;
+  start_date: string;
+  end_date: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
 export type Database = {
   public: {
     Tables: {
@@ -233,9 +258,25 @@ export type Database = {
         Update: Partial<WalletCard>;
         Relationships: [];
       };
+      subscription_plans: {
+        Row: SubscriptionPlan;
+        Insert: Partial<SubscriptionPlan> & Pick<SubscriptionPlan, "plan_name" | "display_name">;
+        Update: Partial<SubscriptionPlan>;
+        Relationships: [];
+      };
+      subscriptions: {
+        Row: Subscription;
+        Insert: Partial<Subscription> & Pick<Subscription, "business_id" | "plan_name">;
+        Update: Partial<Subscription>;
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: {
+      get_effective_subscription_status: {
+        Args: { p_business_id: string };
+        Returns: SubscriptionStatus;
+      };
       record_points_transaction: {
         Args: {
           p_business_id: string;

@@ -1,8 +1,19 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { requireRole } from "@/lib/auth/require-role";
-import { getBusinessStats, getOwnedBusiness } from "@/lib/auth/session";
+import {
+  getBusinessStats,
+  getEffectiveSubscriptionStatus,
+  getOwnedBusiness,
+} from "@/lib/auth/session";
 import { LogoutButton } from "@/components/auth/logout-button";
+
+const SUBSCRIPTION_STATUS_LABELS: Record<string, string> = {
+  trial: "تجريبي",
+  active: "نشط",
+  expired: "منتهي",
+  cancelled: "ملغى",
+};
 
 export default async function DashboardPage() {
   const profile = await requireRole("business_owner", "customer");
@@ -34,7 +45,10 @@ export default async function DashboardPage() {
     redirect("/onboarding/business");
   }
 
-  const stats = await getBusinessStats(business.id);
+  const [stats, subscriptionStatus] = await Promise.all([
+    getBusinessStats(business.id),
+    getEffectiveSubscriptionStatus(business.id),
+  ]);
 
   return (
     <div className="mx-auto max-w-3xl px-6 py-12">
@@ -44,10 +58,17 @@ export default async function DashboardPage() {
             {business.name}
           </h1>
           <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-            حالة الاشتراك: {business.status}
+            حالة الاشتراك:{" "}
+            {SUBSCRIPTION_STATUS_LABELS[subscriptionStatus ?? ""] ?? "—"}
           </p>
         </div>
         <div className="flex items-center gap-4">
+          <Link
+            href="/dashboard/subscription"
+            className="text-sm underline hover:text-zinc-700 dark:hover:text-zinc-300"
+          >
+            الاشتراك
+          </Link>
           <Link
             href="/dashboard/customers"
             className="text-sm underline hover:text-zinc-700 dark:hover:text-zinc-300"
@@ -109,7 +130,7 @@ export default async function DashboardPage() {
       </div>
 
       <p className="mt-10 text-sm text-zinc-500 dark:text-zinc-500">
-        الموظفون والاشتراكات ستُضاف في المراحل القادمة.
+        الموظفون كأدوار مستقلة ستُضاف في مرحلة قادمة.
       </p>
     </div>
   );
