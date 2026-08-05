@@ -1,38 +1,38 @@
-# TechStore 🛒
+# Digital Loyalty Wallet SaaS
 
-متجر إلكتروني متخصص في بيع الأجهزة الإلكترونية، مبني بـ React + Supabase + Stripe.
+منصة SaaS متعددة المستأجرين تتيح لأصحاب المحلات إنشاء برنامج ولاء رقمي
+لعملائهم، ببطاقة ولاء داخل Apple Wallet و Google Wallet — بدون تطبيق خاص.
 
-## الميزات
+المواصفة الكاملة للمنتج والتقنية موجودة في
+[`docs/loyalty-wallet-saas/`](./docs/loyalty-wallet-saas/README.md).
 
-- 🏠 **تصفح المنتجات** — عرض المنتجات مع تصنيفات وبحث
-- ❤️ **المفضلة** — حفظ المنتجات للمفضلة
-- 🛒 **سلة التسوق** — إضافة وإدارة المنتجات في السلة
-- 💳 **دفع آمن** — تكامل مع Stripe Checkout
-- 📦 **الطلبات** — متابعة حالة الطلبات
-- ⭐ **التقييمات** — تقييم المنتجات وكتابة مراجعات
-- 👑 **لوحة تحكم المشرف** — إدارة المنتجات، الطلبات، وإحصائيات المبيعات
+هذا التنفيذ الحالي يغطي **المرحلة 1** فقط من خارطة الطريق: المصادقة، الأدوار
+(admin / business_owner / employee / customer)، وإنشاء المحل. بقية المراحل
+(العملاء، محرك النقاط، المكافآت، تكامل المحفظة، الاشتراكات) ستُبنى لاحقًا.
 
-## التشغيل محلياً
+## البدء
 
 ```bash
-# 1. تثبيت الاعتماديات
 npm install
-cd server && npm install && cd ..
-
-# 2. إعداد البيئة
-# انسخ .env.example إلى .env واملأ المتغيرات
-
-# 3. تشغيل الخادم الخلفي (نافذة)
-cd server && npm start
-
-# 4. تشغيل الواجهة الأمامية (نافذة أخرى)
+cp .env.example .env.local   # املأ بيانات مشروع Supabase
 npm run dev
 ```
 
+افتح [http://localhost:3000](http://localhost:3000).
+
+قبل التشغيل، طبّق `database/migrations/0001_init.sql` على مشروع Supabase
+(SQL editor أو `supabase db push`).
+
+## الأوامر
+
+- `npm run dev` — تشغيل خادم التطوير (Turbopack)
+- `npm run build` — بناء الإنتاج
+- `npm run lint` — ESLint
+- `npm start` — تشغيل بناء الإنتاج
+
 ## التقنيات
 
-- **Frontend:** React 19 + Vite + Tailwind CSS v4
-- **Backend:** Express.js + Stripe API
-- **Database:** Supabase (PostgreSQL)
-- **State:** Zustand
-- **Payments:** Stripe Checkout
+Next.js 16 (App Router) · TypeScript · Tailwind CSS v4 · Supabase
+(Postgres + Auth + RLS)
+
+تفاصيل أكثر (البنية، الأدوار، حماية المسارات) في [`AGENTS.md`](./AGENTS.md).
