@@ -102,7 +102,7 @@ export default async function SubscriptionPage() {
             {currentPlan.customer_limit && (
               <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-primary-200 dark:bg-primary-800">
                 <div
-                  className="h-full rounded-full bg-primary-900 dark:bg-primary-50"
+                  className="h-full rounded-full bg-brand-800 dark:bg-brand-100"
                   style={{
                     width: `${Math.min(100, Math.round((stats.customerCount / currentPlan.customer_limit) * 100))}%`,
                   }}

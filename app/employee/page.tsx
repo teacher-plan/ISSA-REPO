@@ -73,7 +73,7 @@ export default async function EmployeePage({
       {employee.permissions.add_points && (
         <Link
           href="/employee/scan"
-          className="min-h-touch mt-6 flex w-full items-center justify-center rounded-xl bg-primary-800 px-5 py-4 text-base font-semibold text-white"
+          className="min-h-touch mt-6 flex w-full items-center justify-center rounded-xl bg-brand-800 px-5 py-4 text-base font-semibold text-white"
         >
           مسح رمز البطاقة
         </Link>
@@ -94,7 +94,7 @@ export default async function EmployeePage({
         />
         <button
           type="submit"
-          className="rounded-full bg-primary-900 px-4 py-2 text-sm font-medium min-h-touch text-white hover:bg-primary-700 dark:bg-primary-50 dark:text-primary-900 dark:hover:bg-primary-200"
+          className="rounded-full bg-brand-800 px-4 py-2 text-sm font-medium min-h-touch text-white hover:bg-brand-900 dark:bg-brand-100 dark:text-brand-900 dark:hover:bg-brand-200"
         >
           بحث
         </button>

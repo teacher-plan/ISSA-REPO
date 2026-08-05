@@ -299,7 +299,7 @@ export function QrScanner({
             />
             <button
               type="submit"
-              className="min-h-touch rounded-lg bg-primary-800 px-5 text-sm font-bold text-white"
+              className="min-h-touch rounded-lg bg-brand-800 px-5 text-sm font-bold text-white"
             >
               بحث
             </button>

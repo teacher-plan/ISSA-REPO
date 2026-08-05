@@ -154,7 +154,7 @@ function NavTile({
       href={href}
       className={`min-h-touch flex items-center justify-center rounded-xl px-4 py-4 text-center text-sm font-medium ${
         primary
-          ? "bg-primary-800 text-white hover:bg-primary-900"
+          ? "bg-brand-800 text-white hover:bg-brand-900"
           : "border border-primary-200 hover:bg-primary-50 dark:border-primary-800 dark:hover:bg-primary-900"
       }`}
     >

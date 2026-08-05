@@ -28,7 +28,7 @@ export default async function RewardsPage() {
         </h1>
         <Link
           href="/dashboard/rewards/new"
-          className="rounded-full bg-primary-900 px-4 py-2 text-sm font-medium min-h-touch text-white hover:bg-primary-700 dark:bg-primary-50 dark:text-primary-900 dark:hover:bg-primary-200"
+          className="rounded-full bg-brand-800 px-4 py-2 text-sm font-medium min-h-touch text-white hover:bg-brand-900 dark:bg-brand-100 dark:text-brand-900 dark:hover:bg-brand-200"
         >
           + إضافة مكافأة
         </Link>

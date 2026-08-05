@@ -98,7 +98,7 @@ export function CardDesigner({
         <button
           type="submit"
           disabled={generating}
-          className="min-h-touch w-full rounded-xl bg-primary-800 px-5 py-4 text-base font-semibold text-white disabled:opacity-50"
+          className="min-h-touch w-full rounded-xl bg-brand-800 px-5 py-4 text-base font-semibold text-white disabled:opacity-50"
         >
           {generating
             ? "جاري التصميم..."

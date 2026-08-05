@@ -52,7 +52,7 @@ export default async function AnalyticsPage() {
         {growth.map((week) => (
           <div key={week.week_start} className="flex flex-1 flex-col items-center gap-1">
             <div
-              className="w-full rounded-t bg-primary-900 dark:bg-primary-50"
+              className="w-full rounded-t bg-brand-800 dark:bg-brand-100"
               style={{
                 height: `${Math.max(4, Math.round((week.new_customers / maxGrowth) * 100))}px`,
               }}

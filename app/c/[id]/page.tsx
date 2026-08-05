@@ -69,7 +69,7 @@ export default async function PublicCardPage({
         {card.wallet_url_google && (
           <a
             href={card.wallet_url_google}
-            className="rounded-full bg-primary-900 px-5 py-3 text-sm font-medium text-white dark:bg-primary-50 dark:text-primary-900"
+            className="rounded-full bg-brand-800 px-5 py-3 text-sm font-medium text-white dark:bg-brand-100 dark:text-brand-900"
           >
             إضافة إلى Google Wallet
           </a>

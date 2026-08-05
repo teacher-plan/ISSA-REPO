@@ -142,7 +142,7 @@ export function WalletProviderForm({
         <button
           type="submit"
           disabled={savePending}
-          className="rounded-full bg-primary-900 px-5 py-2.5 text-sm font-medium min-h-touch text-white transition-colors hover:bg-primary-700 disabled:opacity-50 dark:bg-primary-50 dark:text-primary-900 dark:hover:bg-primary-200"
+          className="rounded-full bg-brand-800 px-5 py-2.5 text-sm font-medium min-h-touch text-white transition-colors hover:bg-brand-900 disabled:opacity-50 dark:bg-brand-100 dark:text-brand-900 dark:hover:bg-brand-200"
         >
           {savePending ? "جاري الحفظ..." : "حفظ الإعدادات"}
         </button>

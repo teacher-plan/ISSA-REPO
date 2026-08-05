@@ -89,7 +89,7 @@ export function NewEmployeeForm() {
       <button
         type="submit"
         disabled={pending}
-        className="w-fit rounded-full bg-primary-900 px-5 py-2.5 text-sm font-medium min-h-touch text-white transition-colors hover:bg-primary-700 disabled:opacity-50 dark:bg-primary-50 dark:text-primary-900 dark:hover:bg-primary-200"
+        className="w-fit rounded-full bg-brand-800 px-5 py-2.5 text-sm font-medium min-h-touch text-white transition-colors hover:bg-brand-900 disabled:opacity-50 dark:bg-brand-100 dark:text-brand-900 dark:hover:bg-brand-200"
       >
         {pending ? "جاري الإنشاء..." : "إضافة موظف"}
       </button>
