@@ -6,7 +6,7 @@ import {
   getBusinessSettings,
   getOwnedBusiness,
 } from "@/lib/auth/session";
-import { renderJoinQrSvg } from "@/lib/wallet/qr";
+import { getJoinUrl, renderQrSvg } from "@/lib/wallet/qr";
 import { CopyLinkButton } from "@/components/copy-link-button";
 import { BusinessSettingsForm } from "./form";
 
@@ -18,12 +18,12 @@ export default async function BusinessSettingsPage() {
     redirect("/onboarding/business");
   }
 
-  const [settings, activeProvider, qrSvg] = await Promise.all([
+  const [settings, activeProvider, joinUrl] = await Promise.all([
     getBusinessSettings(business.id),
     getActiveWalletProviderSettings(),
-    renderJoinQrSvg(business.id),
+    getJoinUrl(business.id),
   ]);
-  const joinUrl = `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/join/${business.id}`;
+  const qrSvg = await renderQrSvg(joinUrl);
 
   return (
     <div className="mx-auto max-w-2xl px-6 py-12">

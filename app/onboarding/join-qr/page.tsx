@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getCurrentUser, getOwnedBusiness } from "@/lib/auth/session";
-import { renderJoinQrSvg } from "@/lib/wallet/qr";
+import { getJoinUrl, renderQrSvg } from "@/lib/wallet/qr";
 import { CopyLinkButton } from "@/components/copy-link-button";
 
 export default async function OnboardingJoinQrPage() {
@@ -18,8 +18,8 @@ export default async function OnboardingJoinQrPage() {
     redirect("/onboarding/business");
   }
 
-  const qrSvg = await renderJoinQrSvg(business.id);
-  const joinUrl = `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/join/${business.id}`;
+  const joinUrl = await getJoinUrl(business.id);
+  const qrSvg = await renderQrSvg(joinUrl);
 
   return (
     <div className="mx-auto flex min-h-screen max-w-sm flex-col justify-center px-6 py-12">

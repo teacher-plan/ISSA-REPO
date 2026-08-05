@@ -38,18 +38,6 @@ export function BusinessOnboardingForm() {
         />
       </div>
 
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor="country" className="text-sm font-medium">
-          الدولة
-        </label>
-        <input
-          id="country"
-          name="country"
-          type="text"
-          className="rounded-md border border-primary-300 px-3 py-2.5 text-base min-h-touch dark:border-primary-700 dark:bg-primary-900"
-        />
-      </div>
-
       {state.error && (
         <p className="text-sm text-error-600" role="alert">
           {state.error}
