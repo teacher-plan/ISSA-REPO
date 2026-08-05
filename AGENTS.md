@@ -1,66 +1,93 @@
-# AGENTS.md
+<!-- BEGIN:nextjs-agent-rules -->
+
+# This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->
+
+# Digital Loyalty Wallet SaaS
+
+Multi-tenant SaaS platform for digital loyalty cards (Apple Wallet / Google
+Wallet). Full specification lives in `docs/loyalty-wallet-saas/`. This is
+Phase 1 of the roadmap in `docs/loyalty-wallet-saas/09_Development_Roadmap.md`:
+authentication + the `profiles` / `businesses` tables only. Everything else
+(customers, loyalty engine, rewards, wallet integration, employees,
+subscriptions) is still to be built in later phases.
 
 ## Commands
-- `npm run dev` — start frontend dev server (Vite, port 5173)
-- `cd server && npm start` — start payment + orders API (port 3001)
+
+- `npm run dev` — start dev server (Turbopack, port 3000)
 - `npm run build` — production build
 - `npm run lint` — ESLint
-- `npm run preview` — preview production build locally
+- `npm start` — run production build
 
 ## Stack
-- **Frontend**: React 19 + Vite, Tailwind CSS v4 (`@tailwindcss/vite` plugin), React Router v6
-- **State**: Zustand (cart + auth stores in `src/lib/store.js`)
-- **Data**: TanStack Query + Supabase (`src/lib/supabase.js`)
-- **Payments + Orders API**: Express server in `server/` (Stripe Checkout Sessions, order CRUD)
-- **Database**: Supabase (Postgres)
+
+- **Framework**: Next.js 16 (App Router, Turbopack), React 19, TypeScript
+- **Styling**: Tailwind CSS v4
+- **Backend**: Supabase (Postgres, Auth, RLS)
+- **Auth**: `@supabase/ssr`, cookie-based sessions, Server Actions for
+  mutations (`'use server'`)
+- Route protection lives in `proxy.ts` (Next 16 renamed `middleware.ts` to
+  `proxy.ts` — see `node_modules/next/dist/docs/01-app/03-api-reference/03-file-conventions/proxy.md`)
 
 ## Environment
-Copy `.env.example` → `.env` and set:
-- `VITE_SUPABASE_URL` + `VITE_SUPABASE_ANON_KEY` — required for auth + data
-- `VITE_STRIPE_PUBLISHABLE_KEY` — Stripe publishable key
-- `STRIPE_SECRET_KEY` — Stripe secret key (server)
-- `STRIPE_WEBHOOK_SECRET` — Stripe webhook signing secret (server)
-- `SUPABASE_SERVICE_ROLE_KEY` — Supabase service role key (server, bypasses RLS)
-- `CLIENT_URL` — e.g. `http://localhost:5173`
-- `VITE_API_URL` — e.g. `http://localhost:3001`
 
-## Supabase Required Tables
-- `products` — id, name, price, category, image_url, stock, description, rating, discount, created_at
-- `orders` — id, user_id, items (jsonb), total, status, shipping_address, payment_intent, created_at
-- `reviews` — id, product_id, user_id, rating (1-5), comment, created_at
-- `wishlists` — id, user_id, product_id, created_at (unique on user+product)
+Copy `.env.example` → `.env.local` and fill in a Supabase project's API
+settings:
 
-## Auth
-- Supabase auth (email/password). Routes protected via `<ProtectedRoute>` in `src/components/`.
-- Admin dashboard at `/dashboard`; requires `user.role === 'admin'`.
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY` (server-only, not used yet — reserved for
+  future admin-only operations)
 
-## Server API (Express, port 3001)
-| Method | Path | Purpose |
-|--------|------|---------|
-| POST | `/api/create-checkout-session` | Creates Stripe Checkout Session, returns redirect URL |
-| POST | `/api/webhook` | Stripe webhook — confirms payment, inserts order |
-| GET | `/api/orders?userId=X` | List orders (filter by userId) |
-| PUT | `/api/orders/:id` | Update order status (admin) |
-| GET | `/api/orders/stats` | Revenue + order counts (admin) |
+Run `database/migrations/0001_init.sql` against the Supabase project (SQL
+editor or `supabase db push`) before using the app — it creates `profiles`
+and `businesses`, RLS policies, and the `handle_new_user` trigger that
+auto-creates a profile row on signup.
 
-## Directory Layout
+## Directory layout
+
 ```
-server/           — Express API (Stripe + orders)
-src/
-  lib/            — supabase, stripe, zustand store
-  components/     — Navbar, Footer, ProductCard, ProtectedRoute, Reviews
-  pages/          — Home, Products, ProductDetail, Cart, Checkout, OrderConfirmation, Orders, Login, Register, Dashboard
-  App.jsx         — BrowserRouter + route definitions
-  main.jsx        — entry point with QueryClientProvider
+app/
+  page.tsx                    — landing page
+  auth/register/              — owner signup (creates auth user + profile)
+  auth/login/                 — login, logout action
+  auth/check-email/           — shown when email confirmation is required
+  onboarding/business/        — first-login step: create the business row
+  dashboard/                  — business_owner + customer landing page
+  employee/                   — employee landing page (stub)
+  admin/                      — platform admin landing page (stub)
+lib/
+  supabase/client.ts          — browser Supabase client
+  supabase/server.ts          — server Supabase client (cookies)
+  supabase/proxy.ts           — session refresh + route gating, used by proxy.ts
+  auth/session.ts             — getCurrentUser(), getOwnedBusiness()
+  auth/require-role.ts        — server-side role guard for pages
+  auth/redirect-for-role.ts   — where to send a user after login, by role
+types/database.ts             — hand-written Supabase Database type
+  (Row/Insert/Update MUST use `type`, not `interface` — an interface fails
+  the GenericTable structural check and silently degrades inserts to `never`)
+database/migrations/          — plain SQL migrations, applied manually
+docs/loyalty-wallet-saas/     — full product/technical spec (source of truth)
 ```
 
-## Style
-Tailwind utility classes only (no CSS modules, no styled-components). Gradient hero on Home page uses `bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500`.
+## Roles
 
-## Notable
-- `lang="ar" dir="rtl"` in `index.html`
-- Featured products on Home page are hardcoded demo data; real data comes from Supabase on Products page
-- Checkout uses real Stripe Checkout Sessions (redirects to Stripe's hosted page)
-- Orders API must be running separately (`cd server && npm start`)
-- For production, deploy server to Railway/Render/Heroku and set `VITE_API_URL`
-- Dashboard has two tabs: Products (CRUD) and Orders (status management + sales stats)
+`admin` | `business_owner` | `employee` | `customer` — stored on
+`profiles.role`. `requireRole()` redirects unauthenticated users to
+`/auth/login` and wrong-role users to their own landing page
+(`redirectPathForProfile`).
+
+## Notes
+
+- `proxy.ts` matcher excludes static assets; it redirects unauthenticated
+  requests to non-public paths to `/auth/login?next=<path>`.
+- Public paths (no auth required): `/`, `/auth/login`, `/auth/register`,
+  `/auth/check-email`.
+- A business owner with no `businesses` row yet is routed to
+  `/onboarding/business` (both by the login action and by `/dashboard`
+  itself as a safety net).
