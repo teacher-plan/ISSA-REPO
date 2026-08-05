@@ -62,6 +62,10 @@ app/
     settings/                 — business_owner: edit business + colors/lang/tz
     profile/                  — any role: edit own full_name/phone
     loyalty-program/          — business_owner: create/edit the earning rules
+    customers/                — business_owner: list + search customers
+    customers/new/            — add a customer (accepts ?phone= prefill)
+    customers/[id]/           — profile: edit, transaction history, add points
+    quick-add/                — "Employee Mode": search by phone → add points
   employee/                   — employee landing page (stub)
   admin/                      — platform admin landing page (stub)
 lib/
@@ -70,7 +74,9 @@ lib/
   supabase/proxy.ts           — session refresh + route gating, used by proxy.ts
   auth/session.ts             — getCurrentUser(), getOwnedBusiness(),
                                  getBusinessSettings(), getLoyaltyProgram(),
-                                 getBusinessStats()
+                                 getBusinessStats(), getCustomers(),
+                                 getCustomerByPhone(), getCustomer(),
+                                 getCustomerTransactions()
   auth/require-role.ts        — server-side role guard for pages
   auth/redirect-for-role.ts   — where to send a user after login, by role
 types/database.ts             — hand-written Supabase Database type
@@ -94,9 +100,10 @@ see the note in `0003_loyalty_engine.sql`. It re-checks business ownership
 itself (SECURITY DEFINER), rejects a second same-type transaction for the
 same customer within 30 seconds, and keeps `customers.total_points` /
 `loyalty_cards.current_points` in sync with the `transactions` ledger.
-Customer-facing UI (search by phone, employee "add point" quick action) is
-Phase 4; Phase 3 only ships the engine plus the owner's loyalty-program
-settings page.
+Customer management (`/dashboard/customers`) and the "Employee Mode" quick
+add-points flow (`/dashboard/quick-add`, search by phone) are Phase 4 and
+call into this engine. Both are business_owner-only for now — actual
+`employee` role accounts (invites, permissions) are not built yet.
 
 ## Roles
 

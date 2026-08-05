@@ -3,8 +3,10 @@ import { createClient } from "@/lib/supabase/server";
 import type {
   Business,
   BusinessSettings,
+  Customer,
   LoyaltyProgram,
   Profile,
+  Transaction,
 } from "@/types/database";
 
 export async function getCurrentUser(): Promise<{
@@ -90,4 +92,67 @@ export async function getBusinessSettings(
     .maybeSingle();
 
   return data ?? null;
+}
+
+export async function getCustomers(
+  businessId: string,
+  search?: string
+): Promise<Customer[]> {
+  const supabase = await createClient();
+  let query = supabase
+    .from("customers")
+    .select("*")
+    .eq("business_id", businessId)
+    .order("name", { ascending: true });
+
+  if (search) {
+    const safe = search.replace(/[,()%*]/g, "");
+    query = query.or(`name.ilike.%${safe}%,phone.ilike.%${safe}%`);
+  }
+
+  const { data } = await query;
+  return data ?? [];
+}
+
+export async function getCustomerByPhone(
+  businessId: string,
+  phone: string
+): Promise<Customer | null> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("customers")
+    .select("*")
+    .eq("business_id", businessId)
+    .eq("phone", phone)
+    .maybeSingle();
+
+  return data ?? null;
+}
+
+export async function getCustomer(
+  businessId: string,
+  customerId: string
+): Promise<Customer | null> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("customers")
+    .select("*")
+    .eq("business_id", businessId)
+    .eq("id", customerId)
+    .maybeSingle();
+
+  return data ?? null;
+}
+
+export async function getCustomerTransactions(
+  customerId: string
+): Promise<Transaction[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("transactions")
+    .select("*")
+    .eq("customer_id", customerId)
+    .order("created_at", { ascending: false });
+
+  return data ?? [];
 }
