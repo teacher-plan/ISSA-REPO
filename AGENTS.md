@@ -66,6 +66,10 @@ app/
     customers/new/            — add a customer (accepts ?phone= prefill)
     customers/[id]/           — profile: edit, transaction history, add points
     quick-add/                — "Employee Mode": search by phone → add points
+                                 or redeem a reward
+    rewards/                  — business_owner: list + create rewards
+    rewards/new/               — create a reward
+    rewards/[id]/              — edit/delete a reward
   employee/                   — employee landing page (stub)
   admin/                      — platform admin landing page (stub)
 lib/
@@ -76,7 +80,8 @@ lib/
                                  getBusinessSettings(), getLoyaltyProgram(),
                                  getBusinessStats(), getCustomers(),
                                  getCustomerByPhone(), getCustomer(),
-                                 getCustomerTransactions()
+                                 getCustomerTransactions(), getRewards(),
+                                 getReward()
   auth/require-role.ts        — server-side role guard for pages
   auth/redirect-for-role.ts   — where to send a user after login, by role
 types/database.ts             — hand-written Supabase Database type
@@ -89,6 +94,12 @@ database/migrations/          — plain SQL migrations, applied manually
                                   transactions + record_points_transaction()
                                   RPC (single write path for points, enforces
                                   a 30s anti-fraud throttle per customer+type)
+  0004_rewards.sql             — rewards + transactions.reward_id +
+                                  redeem_reward() RPC (validates points/stock
+                                  server-side, delegates to
+                                  record_points_transaction()); replaces
+                                  record_points_transaction() to add the
+                                  optional p_reward_id param
 docs/loyalty-wallet-saas/     — full product/technical spec (source of truth)
 ```
 
@@ -96,14 +107,20 @@ docs/loyalty-wallet-saas/     — full product/technical spec (source of truth)
 
 All point mutations (earn/redeem/adjustment/refund) go through the
 `record_points_transaction()` Postgres function, never direct table writes —
-see the note in `0003_loyalty_engine.sql`. It re-checks business ownership
-itself (SECURITY DEFINER), rejects a second same-type transaction for the
-same customer within 30 seconds, and keeps `customers.total_points` /
+see the note in `0003_loyalty_engine.sql` (redefined in `0004_rewards.sql` to
+add `p_reward_id`). It re-checks business ownership itself (SECURITY
+DEFINER), rejects a second same-type transaction for the same customer
+within 30 seconds, and keeps `customers.total_points` /
 `loyalty_cards.current_points` in sync with the `transactions` ledger.
-Customer management (`/dashboard/customers`) and the "Employee Mode" quick
-add-points flow (`/dashboard/quick-add`, search by phone) are Phase 4 and
-call into this engine. Both are business_owner-only for now — actual
-`employee` role accounts (invites, permissions) are not built yet.
+Reward redemptions go through `redeem_reward()` instead of calling
+`record_points_transaction()` directly — it validates the customer has
+enough points and the reward is active/in stock, then delegates to
+`record_points_transaction()` for the actual ledger write.
+
+Customer management (`/dashboard/customers`), the "Employee Mode" quick
+add-points/redeem-reward flow (`/dashboard/quick-add`, search by phone), and
+reward management (`/dashboard/rewards`) are business_owner-only for now —
+actual `employee` role accounts (invites, permissions) are not built yet.
 
 ## Roles
 

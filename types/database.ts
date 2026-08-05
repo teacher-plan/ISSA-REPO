@@ -91,7 +91,21 @@ export type Transaction = {
   type: TransactionType;
   points: number;
   description: string | null;
+  reward_id: string | null;
   created_at: string;
+};
+
+export type Reward = {
+  id: string;
+  business_id: string;
+  name: string;
+  description: string | null;
+  image_url: string | null;
+  points_required: number;
+  quantity: number | null;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
 };
 
 export type Database = {
@@ -145,6 +159,13 @@ export type Database = {
         Update: Partial<Transaction>;
         Relationships: [];
       };
+      rewards: {
+        Row: Reward;
+        Insert: Partial<Reward> &
+          Pick<Reward, "business_id" | "name" | "points_required">;
+        Update: Partial<Reward>;
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: {
@@ -155,6 +176,15 @@ export type Database = {
           p_type: TransactionType;
           p_points: number;
           p_description?: string | null;
+          p_reward_id?: string | null;
+        };
+        Returns: Transaction;
+      };
+      redeem_reward: {
+        Args: {
+          p_business_id: string;
+          p_customer_id: string;
+          p_reward_id: string;
         };
         Returns: Transaction;
       };

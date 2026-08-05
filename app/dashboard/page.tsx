@@ -67,6 +67,12 @@ export default async function DashboardPage() {
             برنامج الولاء
           </Link>
           <Link
+            href="/dashboard/rewards"
+            className="text-sm underline hover:text-zinc-700 dark:hover:text-zinc-300"
+          >
+            المكافآت
+          </Link>
+          <Link
             href="/dashboard/settings"
             className="text-sm underline hover:text-zinc-700 dark:hover:text-zinc-300"
           >
@@ -90,12 +96,17 @@ export default async function DashboardPage() {
           label="النقاط الموزعة"
           value={String(stats.pointsDistributed)}
         />
-        <StatCard label="المكافآت المستبدلة" value="0" />
+        <Link href="/dashboard/rewards">
+          <StatCard
+            label="المكافآت المستبدلة"
+            value={String(stats.rewardsRedeemedCount)}
+          />
+        </Link>
         <StatCard label="بطاقات المحفظة النشطة" value="0" />
       </div>
 
       <p className="mt-10 text-sm text-zinc-500 dark:text-zinc-500">
-        المكافآت وتكامل المحفظة والموظفون ستُضاف في المراحل القادمة.
+        تكامل المحفظة الرقمية والموظفون والاشتراكات ستُضاف في المراحل القادمة.
       </p>
     </div>
   );
