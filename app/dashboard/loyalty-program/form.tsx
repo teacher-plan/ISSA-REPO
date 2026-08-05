@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useActionState, useState } from "react";
 import { saveLoyaltyProgram, type LoyaltyProgramState } from "./actions";
 import type { EarningType, LoyaltyProgram } from "@/types/database";
@@ -17,6 +18,9 @@ export function LoyaltyProgramForm({
   );
   const [earningType, setEarningType] = useState<EarningType>(
     program?.earning_type ?? "visit"
+  );
+  const [pointsPerAmount, setPointsPerAmount] = useState(
+    program?.points_per_amount ?? 1
   );
 
   return (
@@ -60,15 +64,19 @@ export function LoyaltyProgramForm({
           onChange={(e) => setEarningType(e.target.value as EarningType)}
           className="rounded-md border border-primary-300 px-3 py-2.5 text-base min-h-touch dark:border-primary-700 dark:bg-primary-900"
         >
-          <option value="visit">حسب الزيارة</option>
-          <option value="amount">حسب المبلغ المدفوع</option>
+          <option value="visit">نقطة ثابتة عند كل زيارة</option>
+          <option value="amount">نقاط تتناسب مع المبلغ المدفوع</option>
         </select>
+        <p className="text-xs text-primary-500">
+          هذا يحدد فقط متى يحصل العميل على نقاط — اختر الطريقة الأقرب لكيف
+          تُسجَّل مبيعاتك عندك.
+        </p>
       </div>
 
       {earningType === "visit" ? (
         <div className="flex flex-col gap-1.5">
           <label htmlFor="points_per_visit" className="text-sm font-medium">
-            نقاط لكل زيارة
+            كم نقطة يأخذها العميل في كل زيارة؟
           </label>
           <input
             id="points_per_visit"
@@ -82,7 +90,7 @@ export function LoyaltyProgramForm({
       ) : (
         <div className="flex flex-col gap-1.5">
           <label htmlFor="points_per_amount" className="text-sm font-medium">
-            نقطة لكل وحدة عملة
+            كم نقطة مقابل كل ١ ريال؟
           </label>
           <input
             id="points_per_amount"
@@ -90,15 +98,23 @@ export function LoyaltyProgramForm({
             type="number"
             min={0.1}
             step={0.1}
-            defaultValue={program?.points_per_amount ?? 1}
+            value={pointsPerAmount}
+            onChange={(e) => setPointsPerAmount(Number(e.target.value) || 0)}
             className="rounded-md border border-primary-300 px-3 py-2.5 text-base min-h-touch dark:border-primary-700 dark:bg-primary-900"
           />
+          <p className="text-xs text-primary-500">
+            يعني: لو دفع عميلك ١٠٠ ريال، سيحصل على{" "}
+            <span className="font-semibold text-primary-700 dark:text-primary-300">
+              {Math.round(pointsPerAmount * 100 * 10) / 10}
+            </span>{" "}
+            نقطة.
+          </p>
         </div>
       )}
 
       <div className="flex flex-col gap-1.5">
         <label htmlFor="reward_threshold" className="text-sm font-medium">
-          عدد النقاط المطلوبة للمكافأة
+          كم نقطة يحتاجها العميل ليرى بطاقته ممتلئة؟
         </label>
         <input
           id="reward_threshold"
@@ -109,6 +125,15 @@ export function LoyaltyProgramForm({
           defaultValue={program?.reward_threshold ?? 10}
           className="rounded-md border border-primary-300 px-3 py-2.5 text-base min-h-touch dark:border-primary-700 dark:bg-primary-900"
         />
+        <p className="text-xs text-primary-500">
+          هذا الرقم يحدد شكل شبكة الأختام على بطاقة عميلك فقط. المكافأة
+          الفعلية التي يستبدلها (مثل قهوة مجانية) وسعرها بالنقاط تُنشأ
+          بشكل منفصل من{" "}
+          <Link href="/dashboard/rewards" className="underline">
+            قسم المكافآت
+          </Link>
+          .
+        </p>
       </div>
 
       {state.error && (

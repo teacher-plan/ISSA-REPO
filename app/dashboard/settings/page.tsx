@@ -1,7 +1,11 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { requireRole } from "@/lib/auth/require-role";
-import { getBusinessSettings, getOwnedBusiness } from "@/lib/auth/session";
+import {
+  getActiveWalletProviderSettings,
+  getBusinessSettings,
+  getOwnedBusiness,
+} from "@/lib/auth/session";
 import { BusinessSettingsForm } from "./form";
 
 export default async function BusinessSettingsPage() {
@@ -12,7 +16,10 @@ export default async function BusinessSettingsPage() {
     redirect("/onboarding/business");
   }
 
-  const settings = await getBusinessSettings(business.id);
+  const [settings, activeProvider] = await Promise.all([
+    getBusinessSettings(business.id),
+    getActiveWalletProviderSettings(),
+  ]);
 
   return (
     <div className="mx-auto max-w-2xl px-6 py-12">
@@ -30,7 +37,11 @@ export default async function BusinessSettingsPage() {
         عدّل بيانات محلك ومظهر بطاقة الولاء.
       </p>
 
-      <BusinessSettingsForm business={business} settings={settings} />
+      <BusinessSettingsForm
+        business={business}
+        settings={settings}
+        activeWalletProvider={activeProvider?.provider_name ?? null}
+      />
     </div>
   );
 }

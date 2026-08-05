@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useActionState } from "react";
 import { createReward, type RewardFormState } from "../actions";
 
@@ -55,7 +56,7 @@ export function NewRewardForm() {
       <div className="grid grid-cols-2 gap-4">
         <div className="flex flex-col gap-1.5">
           <label htmlFor="points_required" className="text-sm font-medium">
-            النقاط المطلوبة
+            سعرها بالنقاط
           </label>
           <input
             id="points_required"
@@ -66,6 +67,13 @@ export function NewRewardForm() {
             defaultValue={10}
             className="rounded-md border border-primary-300 px-3 py-2.5 text-base min-h-touch dark:border-primary-700 dark:bg-primary-900"
           />
+          <p className="text-xs text-primary-500">
+            رقم مستقل عن عدد الأختام على البطاقة (المضبوط في{" "}
+            <Link href="/dashboard/loyalty-program" className="underline">
+              برنامج الولاء
+            </Link>
+            ) — هذا هو ما يخصمه استبدال هذه المكافأة تحديدًا من رصيد العميل.
+          </p>
         </div>
 
         <div className="flex flex-col gap-1.5">

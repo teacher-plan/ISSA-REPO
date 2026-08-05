@@ -5,16 +5,22 @@ import {
   updateBusinessSettings,
   type BusinessSettingsState,
 } from "./actions";
-import type { Business, BusinessSettings } from "@/types/database";
+import type { Business, BusinessSettings, WalletProviderName } from "@/types/database";
 
 const initialState: BusinessSettingsState = { error: null, success: false };
 
 export function BusinessSettingsForm({
   business,
   settings,
+  activeWalletProvider,
 }: {
   business: Business;
   settings: BusinessSettings | null;
+  /** Which provider the platform admin has switched on, or null if none yet.
+   * Drives which of the two ID fields below is even shown — before this,
+   * the form showed both PassKit and Google fields unconditionally, with no
+   * way for an owner to tell which one (if either) actually did anything. */
+  activeWalletProvider: WalletProviderName | null;
 }) {
   const [state, formAction, pending] = useActionState(
     updateBusinessSettings,
@@ -119,61 +125,81 @@ export function BusinessSettingsForm({
       </div>
 
       <h2 className="mt-4 text-sm font-medium text-primary-500">
-        قالب المحفظة الرقمية (PassKit)
+        ربط البطاقة بمحفظة آبل وجوجل
       </h2>
-      <p className="-mt-2 text-xs text-primary-500">
-        بعد تصميم بطاقتك في لوحة PassKit، أدخل معرّف البرنامج (Program) والفئة
-        (Tier) هنا لتفعيل إصدار البطاقات لعملائك.
-      </p>
 
-      <div className="grid grid-cols-2 gap-4">
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor="passkit_program_id" className="text-sm font-medium">
-            PassKit Program ID
-          </label>
-          <input
-            id="passkit_program_id"
-            name="passkit_program_id"
-            type="text"
-            dir="ltr"
-            defaultValue={settings?.passkit_program_id ?? ""}
-            className="rounded-md border border-primary-300 px-3 py-2.5 text-base min-h-touch dark:border-primary-700 dark:bg-primary-900"
-          />
-        </div>
-
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor="passkit_tier_id" className="text-sm font-medium">
-            PassKit Tier ID
-          </label>
-          <input
-            id="passkit_tier_id"
-            name="passkit_tier_id"
-            type="text"
-            dir="ltr"
-            defaultValue={settings?.passkit_tier_id ?? ""}
-            className="rounded-md border border-primary-300 px-3 py-2.5 text-base min-h-touch dark:border-primary-700 dark:bg-primary-900"
-          />
-        </div>
-      </div>
-
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor="google_wallet_class_id" className="text-sm font-medium">
-          Google Wallet Class ID
-        </label>
-        <p className="text-xs text-primary-500">
-          إن كانت المنصة تستخدم Google Wallet مباشرة، أدخل معرّف الـ LoyaltyClass
-          الخاص بمحلك بدل حقول PassKit أعلاه.
+      {activeWalletProvider === null && (
+        <p className="-mt-2 rounded-lg border-r-4 border-primary-300 bg-primary-50 p-3 text-xs text-primary-600 dark:border-primary-700 dark:bg-primary-900 dark:text-primary-400">
+          لم تُفعّل المنصة مزوّد محفظة رقمية بعد — لا حاجة لفعل أي شيء هنا
+          الآن. سيظهر لك حقل التعبئة المطلوب تلقائيًا حين يصبح جاهزًا، وحتى
+          ذلك الحين تعمل بطاقة عميلك برمز المسح وحده (القسم التالي).
         </p>
-        <input
-          id="google_wallet_class_id"
-          name="google_wallet_class_id"
-          type="text"
-          dir="ltr"
-          placeholder="3388000000022xxxxxx.my-shop-loyalty"
-          defaultValue={settings?.google_wallet_class_id ?? ""}
-          className="rounded-md border border-primary-300 px-3 py-2.5 text-base min-h-touch dark:border-primary-700 dark:bg-primary-900"
-        />
-      </div>
+      )}
+
+      {activeWalletProvider === "passkit" && (
+        <>
+          <p className="-mt-2 text-xs text-primary-500">
+            صمّم شكل بطاقتك مرة واحدة في حساب PassKit الخاص بك (المزوّد الذي
+            تستخدمه المنصة حاليًا)، ثم الصق هنا المعرّفين اللذين يعطيك
+            إياهما ذلك الحساب. بدونهما لن تصل بطاقات عملائك إلى Apple/Google
+            Wallet — لكن تسجيل النقاط عبر رمز المسح يبقى يعمل بدون هذه
+            الخطوة.
+          </p>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="passkit_program_id" className="text-sm font-medium">
+                معرّف البرنامج <span className="text-primary-400">(Program ID)</span>
+              </label>
+              <input
+                id="passkit_program_id"
+                name="passkit_program_id"
+                type="text"
+                dir="ltr"
+                defaultValue={settings?.passkit_program_id ?? ""}
+                className="rounded-md border border-primary-300 px-3 py-2.5 text-base min-h-touch dark:border-primary-700 dark:bg-primary-900"
+              />
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="passkit_tier_id" className="text-sm font-medium">
+                معرّف الفئة <span className="text-primary-400">(Tier ID)</span>
+              </label>
+              <input
+                id="passkit_tier_id"
+                name="passkit_tier_id"
+                type="text"
+                dir="ltr"
+                defaultValue={settings?.passkit_tier_id ?? ""}
+                className="rounded-md border border-primary-300 px-3 py-2.5 text-base min-h-touch dark:border-primary-700 dark:bg-primary-900"
+              />
+            </div>
+          </div>
+        </>
+      )}
+
+      {activeWalletProvider === "google" && (
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="google_wallet_class_id" className="text-sm font-medium">
+            معرّف بطاقتك في Google Wallet
+          </label>
+          <p className="text-xs text-primary-500">
+            أنشئ فئة الولاء (LoyaltyClass) الخاصة بمحلك من حساب Google Wallet
+            الخاص بك، والصق معرّفها هنا. بدونه لن تصل بطاقات عملائك إلى
+            Google Wallet — لكن تسجيل النقاط عبر رمز المسح يبقى يعمل بدون
+            هذه الخطوة.
+          </p>
+          <input
+            id="google_wallet_class_id"
+            name="google_wallet_class_id"
+            type="text"
+            dir="ltr"
+            placeholder="3388000000022xxxxxx.my-shop-loyalty"
+            defaultValue={settings?.google_wallet_class_id ?? ""}
+            className="rounded-md border border-primary-300 px-3 py-2.5 text-base min-h-touch dark:border-primary-700 dark:bg-primary-900"
+          />
+        </div>
+      )}
 
       {state.error && (
         <p className="text-sm text-error-600" role="alert">
