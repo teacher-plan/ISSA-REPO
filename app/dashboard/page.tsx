@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { requireRole } from "@/lib/auth/require-role";
 import { getOwnedBusiness } from "@/lib/auth/session";
@@ -15,7 +16,13 @@ export default async function DashboardPage() {
         <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
           بطاقة الولاء الرقمية الخاصة بك ستظهر هنا قريبًا.
         </p>
-        <div className="mt-6">
+        <div className="mt-6 flex flex-col items-center gap-3">
+          <Link
+            href="/dashboard/profile"
+            className="text-sm underline hover:text-zinc-700 dark:hover:text-zinc-300"
+          >
+            الملف الشخصي
+          </Link>
           <LogoutButton />
         </div>
       </div>
@@ -38,7 +45,21 @@ export default async function DashboardPage() {
             حالة الاشتراك: {business.status}
           </p>
         </div>
-        <LogoutButton />
+        <div className="flex items-center gap-4">
+          <Link
+            href="/dashboard/settings"
+            className="text-sm underline hover:text-zinc-700 dark:hover:text-zinc-300"
+          >
+            إعدادات المحل
+          </Link>
+          <Link
+            href="/dashboard/profile"
+            className="text-sm underline hover:text-zinc-700 dark:hover:text-zinc-300"
+          >
+            الملف الشخصي
+          </Link>
+          <LogoutButton />
+        </div>
       </div>
 
       <div className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-4">

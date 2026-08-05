@@ -28,6 +28,17 @@ export type Business = {
   updated_at: string;
 };
 
+export type BusinessSettings = {
+  id: string;
+  business_id: string;
+  primary_color: string;
+  secondary_color: string;
+  language: string;
+  timezone: string;
+  created_at: string;
+  updated_at: string;
+};
+
 export type Database = {
   public: {
     Tables: {
@@ -42,6 +53,13 @@ export type Database = {
         Row: Business;
         Insert: Partial<Business> & Pick<Business, "owner_id" | "name">;
         Update: Partial<Business>;
+        Relationships: [];
+      };
+      business_settings: {
+        Row: BusinessSettings;
+        Insert: Partial<BusinessSettings> &
+          Pick<BusinessSettings, "business_id">;
+        Update: Partial<BusinessSettings>;
         Relationships: [];
       };
     };
