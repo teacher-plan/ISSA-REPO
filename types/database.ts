@@ -186,6 +186,17 @@ export type Subscription = {
   updated_at: string;
 };
 
+export type TopReward = {
+  reward_id: string;
+  reward_name: string;
+  redemption_count: number;
+};
+
+export type CustomerGrowthWeek = {
+  week_start: string;
+  new_customers: number;
+};
+
 export type Database = {
   public: {
     Tables: {
@@ -299,6 +310,18 @@ export type Database = {
       get_public_card: {
         Args: { p_wallet_card_id: string };
         Returns: PublicCard[];
+      };
+      get_top_rewards: {
+        Args: { p_business_id: string; p_limit?: number };
+        Returns: TopReward[];
+      };
+      get_customer_growth: {
+        Args: { p_business_id: string; p_weeks?: number };
+        Returns: CustomerGrowthWeek[];
+      };
+      get_return_rate: {
+        Args: { p_business_id: string };
+        Returns: number;
       };
     };
   };

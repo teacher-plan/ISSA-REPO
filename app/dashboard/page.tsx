@@ -70,6 +70,12 @@ export default async function DashboardPage() {
             الاشتراك
           </Link>
           <Link
+            href="/dashboard/analytics"
+            className="text-sm underline hover:text-zinc-700 dark:hover:text-zinc-300"
+          >
+            التحليلات
+          </Link>
+          <Link
             href="/dashboard/customers"
             className="text-sm underline hover:text-zinc-700 dark:hover:text-zinc-300"
           >
