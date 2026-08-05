@@ -248,14 +248,17 @@ export function LoyaltyCardVisual({
       </svg>
 
       <div
-        className="absolute inset-3 flex flex-col overflow-hidden rounded-[1.1rem] px-5 py-6 backdrop-blur-xl backdrop-saturate-150"
+        className="font-card-body absolute inset-3 flex flex-col overflow-hidden rounded-[1.1rem] px-5 py-6 backdrop-blur-xl backdrop-saturate-150"
         style={{
           background: glassBg,
           border: `1px solid ${glassBorder}`,
           color: dark ? ink : "#ffffff",
         }}
       >
-        {/* Header: the shop's own identity, plus whose card this is. */}
+        {/* Header: the shop's own identity, plus whose card this is. The name
+            is set in a display face (--font-card-display) — a shop's own
+            name reads better in something with character than in the app's
+            neutral UI face, which the rest of the pass keeps. */}
         <div className="flex items-start justify-between gap-3">
           <div className="flex min-w-0 items-center gap-2.5">
             {logoUrl && (
@@ -266,7 +269,7 @@ export function LoyaltyCardVisual({
                 className="h-9 w-9 shrink-0 rounded-lg object-cover"
               />
             )}
-            <p className="truncate text-[15px] font-black italic tracking-tight">
+            <p className="font-card-display truncate text-lg font-bold tracking-tight">
               {businessName}
             </p>
           </div>

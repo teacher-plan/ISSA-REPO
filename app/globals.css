@@ -13,6 +13,11 @@
   --font-sans: var(--font-arabic), var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;
 
+  /* The loyalty pass only — a shop's own name in a display face, the rest of
+     the pass in a companion body face. Everywhere else keeps --font-sans. */
+  --font-card-display: var(--font-el-messiri), ui-serif, serif;
+  --font-card-body: var(--font-tajawal), var(--font-arabic), ui-sans-serif, sans-serif;
+
   /* Primary — dark slate. Buttons, headers, body text. */
   --color-primary-50: #f9fafb;
   --color-primary-100: #f3f4f6;

@@ -1,5 +1,11 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono, IBM_Plex_Sans_Arabic } from "next/font/google";
+import {
+  El_Messiri,
+  Geist,
+  Geist_Mono,
+  IBM_Plex_Sans_Arabic,
+  Tajawal,
+} from "next/font/google";
 import "./globals.css";
 import { ServiceWorkerRegistrar } from "@/components/pwa/service-worker-registrar";
 
@@ -20,6 +26,22 @@ const geistSans = Geist({
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+});
+
+// Loaded only for the loyalty pass (see --font-card-display/--font-card-body
+// in globals.css) — a business's shop name reads better in a display face
+// than the app chrome does, so this stays scoped to the card rather than
+// replacing --font-sans everywhere.
+const cardDisplay = El_Messiri({
+  variable: "--font-el-messiri",
+  subsets: ["arabic"],
+  weight: ["500", "700"],
+});
+
+const cardBody = Tajawal({
+  variable: "--font-tajawal",
+  subsets: ["arabic"],
+  weight: ["400", "500", "700"],
 });
 
 export const metadata: Metadata = {
@@ -65,7 +87,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html
       lang="ar"
       dir="rtl"
-      className={`${arabic.variable} ${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${arabic.variable} ${geistSans.variable} ${geistMono.variable} ${cardDisplay.variable} ${cardBody.variable} h-full antialiased`}
     >
       {/* No manual <head>: the metadata/viewport exports above already emit the
           manifest link, icons, theme-color and apple-web-app tags. */}
