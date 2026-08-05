@@ -44,7 +44,14 @@ create index if not exists transactions_reward_id_idx on public.transactions (re
 -- record_points_transaction() — replaced from 0003_loyalty_engine.sql to add
 -- an optional p_reward_id, stamped onto the ledger row when a reward-driven
 -- redemption calls this through redeem_reward() below.
+--
+-- `create or replace` does NOT replace a function whose parameter list
+-- changed — Postgres treats a different arg count as a distinct overload,
+-- which left both the 5-arg and 6-arg versions defined and made every call
+-- ambiguous. The old 5-arg signature must be dropped explicitly first.
 -- ---------------------------------------------------------------------------
+
+drop function if exists public.record_points_transaction(uuid, uuid, text, integer, text);
 
 create or replace function public.record_points_transaction(
   p_business_id uuid,
