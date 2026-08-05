@@ -73,8 +73,13 @@ app/
     rewards/                  — business_owner: list + create rewards
     rewards/new/               — create a reward
     rewards/[id]/              — edit/delete a reward
+    subscription/              — business_owner: current plan, trial
+                                  countdown, usage vs. limit, plan comparison
   admin/                      — platform admin landing page (stub)
     wallet-provider/           — admin: configure/test the wallet provider
+    businesses/                — admin: list all businesses + subscriptions
+    businesses/[id]/           — admin: manually set plan/status/end_date
+                                  (stands in for real billing — see below)
   employee/                   — employee landing page (stub)
   c/[id]/                     — PUBLIC: customer's wallet card (Add to
                                  Apple/Google Wallet), no auth, id is the
@@ -89,12 +94,16 @@ lib/
                                  imported from lib/wallet/provider-registry.ts
   supabase/proxy.ts           — session refresh + route gating, used by proxy.ts
   auth/session.ts             — getCurrentUser(), getOwnedBusiness(),
-                                 getBusinessSettings(), getLoyaltyProgram(),
-                                 getBusinessStats(), getCustomers(),
-                                 getCustomerByPhone(), getCustomer(),
-                                 getCustomerTransactions(), getRewards(),
-                                 getReward(), getWalletCard(),
-                                 getActiveWalletProviderSettings()
+                                 getBusinessById(), getBusinessSettings(),
+                                 getLoyaltyProgram(), getBusinessStats(),
+                                 getCustomers(), getCustomerByPhone(),
+                                 getCustomer(), getCustomerTransactions(),
+                                 getRewards(), getReward(), getWalletCard(),
+                                 getActiveWalletProviderSettings(),
+                                 getSubscription(),
+                                 getEffectiveSubscriptionStatus(),
+                                 getSubscriptionPlans(),
+                                 getAllBusinessesWithSubscriptions()
   auth/require-role.ts        — server-side role guard for pages
   auth/redirect-for-role.ts   — where to send a user after login, by role
   wallet/types.ts              — WalletProvider interface (createCard,
@@ -131,6 +140,17 @@ database/migrations/          — plain SQL migrations, applied manually
                                    get_public_card() RPC (the only public,
                                    anon-readable path — returns display
                                    fields only, never phone/email)
+  0006_subscriptions.sql        — subscription_plans (seeded: starter/
+                                   professional/enterprise), subscriptions,
+                                   on_business_created trigger (auto-starts
+                                   a 14-day starter trial),
+                                   get_effective_subscription_status() RPC
+                                   (lazy trial expiry — a trial past its
+                                   end_date reads as 'expired' without a
+                                   background job flipping the row),
+                                   check_customer_limit() trigger (blocks
+                                   customers.insert once over plan limit or
+                                   once status is expired/cancelled)
 docs/loyalty-wallet-saas/     — full product/technical spec (source of truth)
 ```
 
@@ -195,6 +215,29 @@ adding a new `lib/wallet/providers/*.ts` and one line in
   PassKit account returned a structured `401 Unauthenticated` (not a
   malformed-request error), confirming the JWT format and endpoint shape
   are correct — full success still needs a real Program/Tier/API key.
+
+## Subscriptions
+
+Billing (actual payment collection) is **not** built — same
+external-provider-decision pattern as Phase 6, deliberately deferred pending
+a choice of payment processor (Stripe or similar) since it involves real
+money, business banking details, and compliance considerations beyond a
+simple API-key setup. What exists instead:
+
+- Every business gets a 14-day `starter`-plan trial automatically
+  (`on_business_created` trigger) — no signup flow choice needed.
+- Plan limits (`subscription_plans.customer_limit`) are enforced at the DB
+  level via `check_customer_limit()`, not just in the UI — inserting a
+  customer past the limit, or while the subscription is `expired`/
+  `cancelled`, fails with a clear Arabic error surfaced in
+  `createCustomer`'s form.
+- A trial past its `end_date` is lazily treated as `expired` by
+  `get_effective_subscription_status()` — nothing physically flips the row
+  on a timer (no background worker in this stack, same tradeoff as wallet
+  sync retries).
+- Until real billing exists, `admin` manually sets a business's
+  plan/status/end_date at `/admin/businesses/[id]` — this is the interim
+  "billing ops" path, not a permanent design.
 
 ## Roles
 

@@ -7,6 +7,9 @@ import type {
   LoyaltyProgram,
   Profile,
   Reward,
+  Subscription,
+  SubscriptionPlan,
+  SubscriptionStatus,
   Transaction,
   WalletCard,
   WalletProviderSettings,
@@ -39,6 +42,19 @@ export async function getOwnedBusiness(
     .from("businesses")
     .select("*")
     .eq("owner_id", profileId)
+    .maybeSingle();
+
+  return data ?? null;
+}
+
+export async function getBusinessById(
+  businessId: string
+): Promise<Business | null> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("businesses")
+    .select("*")
+    .eq("id", businessId)
     .maybeSingle();
 
   return data ?? null;
@@ -240,4 +256,67 @@ export async function getActiveWalletProviderSettings(): Promise<WalletProviderS
     .maybeSingle();
 
   return data ?? null;
+}
+
+export async function getSubscription(
+  businessId: string
+): Promise<Subscription | null> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("subscriptions")
+    .select("*")
+    .eq("business_id", businessId)
+    .maybeSingle();
+
+  return data ?? null;
+}
+
+export async function getEffectiveSubscriptionStatus(
+  businessId: string
+): Promise<SubscriptionStatus | null> {
+  const supabase = await createClient();
+  const { data } = await supabase.rpc("get_effective_subscription_status", {
+    p_business_id: businessId,
+  });
+
+  return data ?? null;
+}
+
+export async function getSubscriptionPlans(): Promise<SubscriptionPlan[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("subscription_plans")
+    .select("*")
+    .order("price_omr", { ascending: true });
+
+  return data ?? [];
+}
+
+export async function getAllBusinessesWithSubscriptions(): Promise<
+  Array<Business & { subscription: Subscription | null }>
+> {
+  const supabase = await createClient();
+  const { data: businesses } = await supabase
+    .from("businesses")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  if (!businesses) return [];
+
+  const { data: subscriptions } = await supabase
+    .from("subscriptions")
+    .select("*")
+    .in(
+      "business_id",
+      businesses.map((b) => b.id)
+    );
+
+  const byBusinessId = new Map(
+    (subscriptions ?? []).map((s) => [s.business_id, s])
+  );
+
+  return businesses.map((b) => ({
+    ...b,
+    subscription: byBusinessId.get(b.id) ?? null,
+  }));
 }

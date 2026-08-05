@@ -47,7 +47,7 @@ export async function createCustomer(
   if (error) {
     const message = error.code === "23505"
       ? "يوجد عميل مسجّل بهذا الرقم مسبقًا."
-      : error.message;
+      : error.message.replace(/^(subscription_inactive|customer_limit_reached):\s*/, "");
     return { error: message, customerId: null };
   }
 
