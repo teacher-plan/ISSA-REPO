@@ -35,6 +35,8 @@ export type BusinessSettings = {
   secondary_color: string;
   language: string;
   timezone: string;
+  passkit_program_id: string | null;
+  passkit_tier_id: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -108,6 +110,57 @@ export type Reward = {
   updated_at: string;
 };
 
+export type WalletProviderName = "passkit";
+
+export type WalletProviderSettings = {
+  id: string;
+  provider_name: WalletProviderName;
+  api_key: string;
+  api_secret: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
+export type WalletPlatform = "apple" | "google" | "both";
+
+export type WalletCardSyncStatus =
+  | "created"
+  | "generating"
+  | "active"
+  | "syncing"
+  | "updated"
+  | "failed";
+
+export type WalletCard = {
+  id: string;
+  business_id: string;
+  customer_id: string;
+  provider_name: string | null;
+  external_card_id: string | null;
+  wallet_url_apple: string | null;
+  wallet_url_google: string | null;
+  platform: WalletPlatform | null;
+  sync_status: WalletCardSyncStatus;
+  last_error: string | null;
+  last_synced_at: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type PublicCard = {
+  business_name: string;
+  business_logo_url: string | null;
+  primary_color: string;
+  secondary_color: string;
+  customer_name: string;
+  current_points: number;
+  reward_threshold: number | null;
+  wallet_url_apple: string | null;
+  wallet_url_google: string | null;
+  sync_status: WalletCardSyncStatus;
+};
+
 export type Database = {
   public: {
     Tables: {
@@ -166,6 +219,20 @@ export type Database = {
         Update: Partial<Reward>;
         Relationships: [];
       };
+      wallet_provider_settings: {
+        Row: WalletProviderSettings;
+        Insert: Partial<WalletProviderSettings> &
+          Pick<WalletProviderSettings, "provider_name" | "api_key" | "api_secret">;
+        Update: Partial<WalletProviderSettings>;
+        Relationships: [];
+      };
+      wallet_cards: {
+        Row: WalletCard;
+        Insert: Partial<WalletCard> &
+          Pick<WalletCard, "business_id" | "customer_id">;
+        Update: Partial<WalletCard>;
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: {
@@ -187,6 +254,10 @@ export type Database = {
           p_reward_id: string;
         };
         Returns: Transaction;
+      };
+      get_public_card: {
+        Args: { p_wallet_card_id: string };
+        Returns: PublicCard[];
       };
     };
   };

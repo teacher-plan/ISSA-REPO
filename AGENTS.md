@@ -11,11 +11,12 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 # Digital Loyalty Wallet SaaS
 
 Multi-tenant SaaS platform for digital loyalty cards (Apple Wallet / Google
-Wallet). Full specification lives in `docs/loyalty-wallet-saas/`. This is
-Phase 1 of the roadmap in `docs/loyalty-wallet-saas/09_Development_Roadmap.md`:
-authentication + the `profiles` / `businesses` tables only. Everything else
-(customers, loyalty engine, rewards, wallet integration, employees,
-subscriptions) is still to be built in later phases.
+Wallet). Full specification lives in `docs/loyalty-wallet-saas/`. Phases 1-6
+of the roadmap in `docs/loyalty-wallet-saas/09_Development_Roadmap.md` are
+implemented: authentication, business dashboard, the loyalty/points engine,
+customer management, rewards, and wallet integration (PassKit adapter).
+Employees (as actual accounts, not just the "Employee Mode" quick-add UI)
+and subscriptions (Phase 7+) are still to be built.
 
 ## Commands
 
@@ -41,8 +42,10 @@ settings:
 
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-- `SUPABASE_SERVICE_ROLE_KEY` (server-only, not used yet — reserved for
-  future admin-only operations)
+- `SUPABASE_SERVICE_ROLE_KEY` (server-only, bypasses RLS — used only by
+  `lib/supabase/service.ts`, and only from `lib/wallet/provider-registry.ts`
+  to read `wallet_provider_settings` from inside a business_owner's server
+  action; never import it anywhere else)
 
 Run `database/migrations/0001_init.sql` against the Supabase project (SQL
 editor or `supabase db push`) before using the app — it creates `profiles`
@@ -70,20 +73,40 @@ app/
     rewards/                  — business_owner: list + create rewards
     rewards/new/               — create a reward
     rewards/[id]/              — edit/delete a reward
-  employee/                   — employee landing page (stub)
   admin/                      — platform admin landing page (stub)
+    wallet-provider/           — admin: configure/test the wallet provider
+  employee/                   — employee landing page (stub)
+  c/[id]/                     — PUBLIC: customer's wallet card (Add to
+                                 Apple/Google Wallet), no auth, id is the
+                                 wallet_cards row id used as an unguessable
+                                 "secure token" (see 06_Wallet_Integration.md
+                                 section 15)
 lib/
   supabase/client.ts          — browser Supabase client
-  supabase/server.ts          — server Supabase client (cookies)
+  supabase/server.ts          — server Supabase client (cookies, RLS-scoped
+                                 to the logged-in user)
+  supabase/service.ts         — service-role client, bypasses RLS; only
+                                 imported from lib/wallet/provider-registry.ts
   supabase/proxy.ts           — session refresh + route gating, used by proxy.ts
   auth/session.ts             — getCurrentUser(), getOwnedBusiness(),
                                  getBusinessSettings(), getLoyaltyProgram(),
                                  getBusinessStats(), getCustomers(),
                                  getCustomerByPhone(), getCustomer(),
                                  getCustomerTransactions(), getRewards(),
-                                 getReward()
+                                 getReward(), getWalletCard(),
+                                 getActiveWalletProviderSettings()
   auth/require-role.ts        — server-side role guard for pages
   auth/redirect-for-role.ts   — where to send a user after login, by role
+  wallet/types.ts              — WalletProvider interface (createCard,
+                                  updateCard, deleteCard, getStatus,
+                                  testConnection) — provider-agnostic
+  wallet/provider-registry.ts  — reads the active provider config, returns
+                                  a WalletProvider instance
+  wallet/sync.ts                — syncWalletCard(): best-effort create/update,
+                                   never throws, records failures on the
+                                   wallet_cards row instead
+  wallet/providers/passkit.ts   — PassKit REST adapter (Members API, JWT
+                                   auth signed with node:crypto HMAC)
 types/database.ts             — hand-written Supabase Database type
   (Row/Insert/Update MUST use `type`, not `interface` — an interface fails
   the GenericTable structural check and silently degrades inserts to `never`)
@@ -100,6 +123,14 @@ database/migrations/          — plain SQL migrations, applied manually
                                   record_points_transaction()); replaces
                                   record_points_transaction() to add the
                                   optional p_reward_id param
+  0005_wallet_integration.sql   — wallet_provider_settings (admin-only RLS),
+                                   wallet_cards, business_settings
+                                   .passkit_program_id/.passkit_tier_id,
+                                   on_customer_created trigger (auto-
+                                   provisions a wallet_cards row),
+                                   get_public_card() RPC (the only public,
+                                   anon-readable path — returns display
+                                   fields only, never phone/email)
 docs/loyalty-wallet-saas/     — full product/technical spec (source of truth)
 ```
 
@@ -122,6 +153,49 @@ add-points/redeem-reward flow (`/dashboard/quick-add`, search by phone), and
 reward management (`/dashboard/rewards`) are business_owner-only for now —
 actual `employee` role accounts (invites, permissions) are not built yet.
 
+## Wallet integration
+
+Provider-agnostic by design (`lib/wallet/types.ts` `WalletProvider`
+interface) per `06_Wallet_Integration.md` — swapping providers later means
+adding a new `lib/wallet/providers/*.ts` and one line in
+`provider-registry.ts`, nothing else changes.
+
+- **Platform-wide, not per-business**: one active provider config
+  (`wallet_provider_settings`), set by the platform `admin` at
+  `/admin/wallet-provider`. RLS restricts that table to `admin`; the sync
+  logic reads it via the service-role client (`lib/supabase/service.ts`)
+  since it runs inside business_owner actions.
+- **Per-business pass template**: each business owner creates their own
+  Program + Tier (the actual pass design) in the provider's own dashboard —
+  this app never generates or designs a pass — and enters the resulting IDs
+  in `/dashboard/settings` (`passkit_program_id` / `passkit_tier_id`). Sync
+  fails with a clear message until both are set.
+- **Auto-provisioning**: the `on_customer_created` trigger inserts a
+  `wallet_cards` row (`sync_status = 'created'`) the moment a customer is
+  created; `syncWalletCard()` is then called from `createCustomer`,
+  `addPointsTransaction`, and `redeemRewardForCustomer` to push an
+  create/update to the provider. It never throws — a failure just leaves
+  `wallet_cards.sync_status = 'failed'` with `last_error` set, and the owner
+  can retry from the customer profile page ("إعادة المزامنة"). This is a
+  simplified stand-in for the roadmap's automated-retry/event-queue design
+  (section 11-12) — there's no background worker in this stack, so retries
+  are manual rather than exponential-backoff-on-a-timer.
+- **Public card page** (`/c/[id]`): the only way an unauthenticated visitor
+  reads card data — via `get_public_card()`, a `SECURITY DEFINER` RPC
+  granted to `anon`/`authenticated` that returns only display fields
+  (business name/logo/colors, customer name, points, reward threshold,
+  wallet URLs). `[id]` is the `wallet_cards.id`, acting as the QR code's
+  "secure token".
+- The PassKit adapter (`lib/wallet/providers/passkit.ts`) is written against
+  their published OpenAPI spec, but two things are unverified against a
+  real account (documented as comments in the file): the JWT
+  `Authorization` header format, and the pass-install-URL construction
+  (`https://pub1.pskt.io/{memberId}.pkpass` / `.gpay}` — not returned by any
+  API response). Confirmed empirically during Phase 6 testing: a real
+  PassKit account returned a structured `401 Unauthenticated` (not a
+  malformed-request error), confirming the JWT format and endpoint shape
+  are correct — full success still needs a real Program/Tier/API key.
+
 ## Roles
 
 `admin` | `business_owner` | `employee` | `customer` — stored on
@@ -134,7 +208,7 @@ actual `employee` role accounts (invites, permissions) are not built yet.
 - `proxy.ts` matcher excludes static assets; it redirects unauthenticated
   requests to non-public paths to `/auth/login?next=<path>`.
 - Public paths (no auth required): `/`, `/auth/login`, `/auth/register`,
-  `/auth/check-email`.
+  `/auth/check-email`, and any `/c/*` path (the public wallet card page).
 - A business owner with no `businesses` row yet is routed to
   `/onboarding/business` (both by the login action and by `/dashboard`
   itself as a safety net).

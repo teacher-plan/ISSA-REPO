@@ -8,6 +8,8 @@ import type {
   Profile,
   Reward,
   Transaction,
+  WalletCard,
+  WalletProviderSettings,
 } from "@/types/database";
 
 export async function getCurrentUser(): Promise<{
@@ -46,6 +48,7 @@ export async function getBusinessStats(businessId: string): Promise<{
   customerCount: number;
   pointsDistributed: number;
   rewardsRedeemedCount: number;
+  activeWalletCardCount: number;
 }> {
   const supabase = await createClient();
 
@@ -53,6 +56,7 @@ export async function getBusinessStats(businessId: string): Promise<{
     { count: customerCount },
     { data: earnTx },
     { count: rewardsRedeemedCount },
+    { count: activeWalletCardCount },
   ] = await Promise.all([
     supabase
       .from("customers")
@@ -68,6 +72,11 @@ export async function getBusinessStats(businessId: string): Promise<{
       .select("*", { count: "exact", head: true })
       .eq("business_id", businessId)
       .not("reward_id", "is", null),
+    supabase
+      .from("wallet_cards")
+      .select("*", { count: "exact", head: true })
+      .eq("business_id", businessId)
+      .in("sync_status", ["active", "updated"]),
   ]);
 
   const pointsDistributed = (earnTx ?? []).reduce(
@@ -79,6 +88,7 @@ export async function getBusinessStats(businessId: string): Promise<{
     customerCount: customerCount ?? 0,
     pointsDistributed,
     rewardsRedeemedCount: rewardsRedeemedCount ?? 0,
+    activeWalletCardCount: activeWalletCardCount ?? 0,
   };
 }
 
@@ -201,6 +211,32 @@ export async function getReward(
     .select("*")
     .eq("business_id", businessId)
     .eq("id", rewardId)
+    .maybeSingle();
+
+  return data ?? null;
+}
+
+export async function getWalletCard(
+  businessId: string,
+  customerId: string
+): Promise<WalletCard | null> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("wallet_cards")
+    .select("*")
+    .eq("business_id", businessId)
+    .eq("customer_id", customerId)
+    .maybeSingle();
+
+  return data ?? null;
+}
+
+export async function getActiveWalletProviderSettings(): Promise<WalletProviderSettings | null> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("wallet_provider_settings")
+    .select("*")
+    .eq("is_active", true)
     .maybeSingle();
 
   return data ?? null;

@@ -34,6 +34,8 @@ export async function updateBusinessSettings(
   const country = String(formData.get("country") ?? "").trim() || null;
   const primaryColor = String(formData.get("primary_color") ?? "#18181b");
   const secondaryColor = String(formData.get("secondary_color") ?? "#f4f4f5");
+  const passkitProgramId = String(formData.get("passkit_program_id") ?? "").trim() || null;
+  const passkitTierId = String(formData.get("passkit_tier_id") ?? "").trim() || null;
 
   if (!name) {
     return { error: "اسم المحل مطلوب.", success: false };
@@ -63,6 +65,8 @@ export async function updateBusinessSettings(
         business_id: business.id,
         primary_color: primaryColor,
         secondary_color: secondaryColor,
+        passkit_program_id: passkitProgramId,
+        passkit_tier_id: passkitTierId,
       },
       { onConflict: "business_id" }
     );

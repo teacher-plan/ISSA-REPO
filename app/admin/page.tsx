@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { requireRole } from "@/lib/auth/require-role";
 import { LogoutButton } from "@/components/auth/logout-button";
 
@@ -10,9 +11,15 @@ export default async function AdminPage() {
         لوحة تحكم المنصة — {profile.full_name || profile.email}
       </h1>
       <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
-        إدارة المحلات والاشتراكات ومزودي المحفظة ستُضاف في مراحل لاحقة.
+        إدارة المحلات والاشتراكات ستُضاف في مراحل لاحقة.
       </p>
-      <div className="mt-6">
+      <div className="mt-6 flex flex-col items-center gap-3">
+        <Link
+          href="/admin/wallet-provider"
+          className="text-sm underline hover:text-zinc-700 dark:hover:text-zinc-300"
+        >
+          مزوّد المحفظة الرقمية
+        </Link>
         <LogoutButton />
       </div>
     </div>

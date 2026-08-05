@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUser, getCustomer, getOwnedBusiness } from "@/lib/auth/session";
+import { syncWalletCard } from "@/lib/wallet/sync";
 import type { TransactionType } from "@/types/database";
 
 export interface CustomerActionState {
@@ -103,6 +104,8 @@ export async function addPointsTransaction(
     return { error: message, success: false };
   }
 
+  await syncWalletCard(business.id, customerId);
+
   revalidatePath(`/dashboard/customers/${customerId}`);
   revalidatePath("/dashboard");
 
@@ -139,9 +142,20 @@ export async function redeemRewardForCustomer(
     return { error: message, success: false };
   }
 
+  await syncWalletCard(business.id, customerId);
+
   revalidatePath(`/dashboard/customers/${customerId}`);
   revalidatePath("/dashboard/rewards");
   revalidatePath("/dashboard");
 
   return { error: null, success: true };
+}
+
+export async function resyncWalletCard(customerId: string): Promise<void> {
+  const { business } = await requireOwnerAndCustomer(customerId);
+
+  await syncWalletCard(business.id, customerId);
+
+  revalidatePath(`/dashboard/customers/${customerId}`);
+  revalidatePath("/dashboard");
 }

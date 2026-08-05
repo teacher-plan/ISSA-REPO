@@ -118,6 +118,44 @@ export function BusinessSettingsForm({
         </div>
       </div>
 
+      <h2 className="mt-4 text-sm font-medium text-zinc-500">
+        قالب المحفظة الرقمية (PassKit)
+      </h2>
+      <p className="-mt-2 text-xs text-zinc-500">
+        بعد تصميم بطاقتك في لوحة PassKit، أدخل معرّف البرنامج (Program) والفئة
+        (Tier) هنا لتفعيل إصدار البطاقات لعملائك.
+      </p>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="passkit_program_id" className="text-sm font-medium">
+            PassKit Program ID
+          </label>
+          <input
+            id="passkit_program_id"
+            name="passkit_program_id"
+            type="text"
+            dir="ltr"
+            defaultValue={settings?.passkit_program_id ?? ""}
+            className="rounded-md border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+          />
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="passkit_tier_id" className="text-sm font-medium">
+            PassKit Tier ID
+          </label>
+          <input
+            id="passkit_tier_id"
+            name="passkit_tier_id"
+            type="text"
+            dir="ltr"
+            defaultValue={settings?.passkit_tier_id ?? ""}
+            className="rounded-md border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+          />
+        </div>
+      </div>
+
       {state.error && (
         <p className="text-sm text-red-600" role="alert">
           {state.error}
