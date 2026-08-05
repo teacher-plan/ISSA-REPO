@@ -70,6 +70,12 @@ export default async function DashboardPage() {
             الاشتراك
           </Link>
           <Link
+            href="/dashboard/employees"
+            className="text-sm underline hover:text-zinc-700 dark:hover:text-zinc-300"
+          >
+            الموظفون
+          </Link>
+          <Link
             href="/dashboard/analytics"
             className="text-sm underline hover:text-zinc-700 dark:hover:text-zinc-300"
           >
@@ -134,10 +140,6 @@ export default async function DashboardPage() {
           value={String(stats.activeWalletCardCount)}
         />
       </div>
-
-      <p className="mt-10 text-sm text-zinc-500 dark:text-zinc-500">
-        الموظفون كأدوار مستقلة ستُضاف في مرحلة قادمة.
-      </p>
     </div>
   );
 }

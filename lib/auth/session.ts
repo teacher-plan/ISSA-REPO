@@ -5,6 +5,7 @@ import type {
   BusinessSettings,
   CustomerGrowthWeek,
   Customer,
+  Employee,
   LoyaltyProgram,
   Profile,
   Reward,
@@ -372,4 +373,44 @@ export async function getReturnRate(businessId: string): Promise<number> {
   });
 
   return data ?? 0;
+}
+
+export async function getEmployees(businessId: string): Promise<
+  Array<Employee & { profile: Pick<Profile, "full_name" | "email"> | null }>
+> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("employees")
+    .select("*, profile:profiles(full_name, email)")
+    .eq("business_id", businessId)
+    .order("created_at", { ascending: false });
+
+  return (data ?? []) as unknown as Array<
+    Employee & { profile: Pick<Profile, "full_name" | "email"> | null }
+  >;
+}
+
+export async function getEmployeeRecord(
+  profileId: string
+): Promise<Employee | null> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("employees")
+    .select("*")
+    .eq("profile_id", profileId)
+    .maybeSingle();
+
+  return data ?? null;
+}
+
+export async function getBusinessForEmployee(
+  profileId: string
+): Promise<{ business: Business; employee: Employee } | null> {
+  const employee = await getEmployeeRecord(profileId);
+  if (!employee) return null;
+
+  const business = await getBusinessById(employee.business_id);
+  if (!business) return null;
+
+  return { business, employee };
 }

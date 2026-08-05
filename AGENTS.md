@@ -13,12 +13,12 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 Multi-tenant SaaS platform for digital loyalty cards (Apple Wallet / Google
 Wallet). Full specification lives in `docs/loyalty-wallet-saas/`. Phases 1-8
 of the roadmap in `docs/loyalty-wallet-saas/09_Development_Roadmap.md` are
-implemented: authentication, business dashboard, the loyalty/points engine,
+implemented — authentication, business dashboard, the loyalty/points engine,
 customer management, rewards, wallet integration (PassKit adapter),
-subscriptions/plan limits, and analytics. Employees (as actual accounts,
-not just the "Employee Mode" quick-add UI), real billing/payment
-collection, and Phase 9's production-launch checklist are still to be
-built.
+subscriptions/plan limits, and analytics — plus real employee accounts
+(business_owner-provisioned, permission-gated) rounding out the roadmap's
+MVP scope. Real billing/payment collection and Phase 9's production-launch
+checklist (legal/business tasks, not code) are still to be built.
 
 ## Commands
 
@@ -70,8 +70,8 @@ app/
     customers/                — business_owner: list + search customers
     customers/new/            — add a customer (accepts ?phone= prefill)
     customers/[id]/           — profile: edit, transaction history, add points
-    quick-add/                — "Employee Mode": search by phone → add points
-                                 or redeem a reward
+    quick-add/                — business_owner's own "Employee Mode": search
+                                 by phone → add points or redeem a reward
     rewards/                  — business_owner: list + create rewards
     rewards/new/               — create a reward
     rewards/[id]/              — edit/delete a reward
@@ -79,12 +79,18 @@ app/
                                   countdown, usage vs. limit, plan comparison
     analytics/                 — business_owner: return rate, customer
                                   growth chart, top customers, top rewards
+    employees/                 — business_owner: list employees, add one
+                                  (provisions their login), suspend/reactivate
   admin/                      — platform admin landing page (stub)
     wallet-provider/           — admin: configure/test the wallet provider
     businesses/                — admin: list all businesses + subscriptions
     businesses/[id]/           — admin: manually set plan/status/end_date
                                   (stands in for real billing — see below)
-  employee/                   — employee landing page (stub)
+  employee/                   — real "Employee Mode" landing page: search
+                                 customer by phone, add points / redeem
+                                 reward / add customer, gated per-employee by
+                                 employees.permissions (add_points,
+                                 redeem_rewards, manage_customers)
   c/[id]/                     — PUBLIC: customer's wallet card (Add to
                                  Apple/Google Wallet), no auth, id is the
                                  wallet_cards row id used as an unguessable
@@ -94,8 +100,9 @@ lib/
   supabase/client.ts          — browser Supabase client
   supabase/server.ts          — server Supabase client (cookies, RLS-scoped
                                  to the logged-in user)
-  supabase/service.ts         — service-role client, bypasses RLS; only
-                                 imported from lib/wallet/provider-registry.ts
+  supabase/service.ts         — service-role client, bypasses RLS and
+                                 unlocks the Auth Admin API; see the file's
+                                 doc comment for its two narrow, audited uses
   supabase/proxy.ts           — session refresh + route gating, used by proxy.ts
   auth/session.ts             — getCurrentUser(), getOwnedBusiness(),
                                  getBusinessById(), getBusinessSettings(),
@@ -109,7 +116,9 @@ lib/
                                  getSubscriptionPlans(),
                                  getAllBusinessesWithSubscriptions(),
                                  getTopCustomers(), getTopRewards(),
-                                 getCustomerGrowth(), getReturnRate()
+                                 getCustomerGrowth(), getReturnRate(),
+                                 getEmployees(), getEmployeeRecord(),
+                                 getBusinessForEmployee()
   auth/require-role.ts        — server-side role guard for pages
   auth/redirect-for-role.ts   — where to send a user after login, by role
   wallet/types.ts              — WalletProvider interface (createCard,
@@ -164,6 +173,21 @@ database/migrations/          — plain SQL migrations, applied manually
                                    RLS on transactions/rewards/customers
                                    applies naturally with no manual
                                    ownership check needed
+  0008_employees.sql             — employees table; broadens
+                                   record_points_transaction()/
+                                   redeem_reward() authorization to accept an
+                                   active employee (not just the owner);
+                                   introduced (then didn't yet fix — see
+                                   0009/0010) RLS granting employees access
+                                   to businesses/customers/loyalty_programs/
+                                   rewards
+  0009_fix_employee_rls_recursion.sql — fixes 42P17 infinite recursion
+                                   between businesses <-> employees RLS (see
+                                   "Employees" section below)
+  0010_fix_profiles_employee_visibility.sql — fixes the owner's session
+                                   being unable to read an employee's own
+                                   profiles row (name/email) via the same
+                                   root cause
 docs/loyalty-wallet-saas/     — full product/technical spec (source of truth)
 ```
 
@@ -251,6 +275,57 @@ simple API-key setup. What exists instead:
 - Until real billing exists, `admin` manually sets a business's
   plan/status/end_date at `/admin/businesses/[id]` — this is the interim
   "billing ops" path, not a permanent design.
+
+## Employees
+
+`employee` accounts are business_owner-provisioned via the Supabase Auth
+Admin API (`/dashboard/employees`, owner sets email + a temporary password
+they hand to the employee directly) — not self-signup or email-invite,
+since no transactional email service is wired up. `handle_new_user()`
+(0001_init.sql) still creates the `profiles` row automatically from the
+new auth user's metadata; `createEmployee()` then links an `employees` row
+(`business_id`, `profile_id`, `permissions` jsonb: `add_points`,
+`redeem_rewards`, `manage_customers`) to it.
+
+**RLS recursion — read this before adding any policy that lets employees
+read a table also referenced by another table's own policy.** 0008 first
+wrote `businesses_select_employee` as a raw subquery into `employees`, and
+`employees`' own owner policy is a raw subquery into `businesses` — Postgres
+detects the cycle and every query on `businesses` for *any* business_owner
+starts failing with `42P17: infinite recursion detected in policy`. This
+went unnoticed until e2e testing caught it, because `getOwnedBusiness()` (like
+every other `get*` helper in `lib/auth/session.ts`) only destructures `data`
+and discards `error` — the RLS failure silently looked like "no business
+found" and misrouted users to `/onboarding/business`. The fix (0009): a
+`SECURITY DEFINER` helper function (`current_employee_business_id()`,
+`current_employee_has_permission()`) whose *internal* query bypasses RLS on
+`employees` entirely, so evaluating `businesses`' policy never re-enters
+`employees`' policy. This is the same pattern `current_profile_id()` /
+`current_role()` already used to keep `profiles`' own policy from
+recursing on itself — apply it to any new cross-table policy pair, don't
+write a raw subquery into a table whose own policy subqueries back.
+
+The same root cause (RLS silently blocking a read the app assumed would
+succeed, not a crash) also broke two other things, both fixed the same way:
+`getEmployees()`'s embedded `profiles(full_name, email)` join returned
+blank names, because `profiles_select_own` (`auth_id = auth.uid()`) blocks
+an owner from reading an employee's profile row (0010, another
+`SECURITY DEFINER` function); and `app/dashboard/employees/actions.ts`
+had to switch its post-`admin.createUser()` profile lookup to the
+service-role client for the same reason. **Whenever a server action reads
+data belonging to a *different* user than the one whose session is driving
+the request, assume RLS will block it and check whether the read needs a
+`SECURITY DEFINER` function or the service-role client — don't rely on the
+regular request-scoped client "just working."**
+
+A suspended employee (`employees.status = 'suspended'`) must still be able
+to log in and see "your account is suspended," but `current_employee_business_id()`
+intentionally requires `status = 'active'` (so a suspended employee's
+session genuinely loses RLS access to businesses/customers/etc). `/employee`
+therefore reads the employee's own row first via `getEmployeeRecord()`
+(`employees_select_self` RLS: `profile_id = current_profile_id()`, not
+status-gated) before touching any status-gated table — checking status via
+the gated path would misread "suspended" as "no employee record at all."
 
 ## Roles
 
