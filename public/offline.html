@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>بدون اتصال</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+      color: #ffffff;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .container {
+      text-align: center;
+      max-width: 400px;
+    }
+
+    .icon {
+      font-size: 4rem;
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      font-size: 1.875rem;
+      margin-bottom: 10px;
+      font-weight: 700;
+    }
+
+    p {
+      font-size: 1rem;
+      color: #d1d5db;
+      line-height: 1.6;
+      margin-bottom: 30px;
+    }
+
+    .button {
+      display: inline-block;
+      padding: 12px 24px;
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+      color: #ffffff;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: opacity 0.2s;
+      font-size: 1rem;
+      touch-action: manipulation;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .button:active {
+      opacity: 0.9;
+    }
+
+    .network-status {
+      margin-top: 30px;
+      padding: 15px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      font-size: 0.875rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="icon">📡</div>
+    <h1>بدون اتصال بالإنترنت</h1>
+    <p>يبدو أنه لا يوجد اتصال بالإنترنت. يرجى التحقق من اتصالك والمحاولة مجدداً.</p>
+
+    <button class="button" onclick="window.location.href='/'">
+      العودة للرئيسية
+    </button>
+
+    <div class="network-status" id="status">
+      جاري التحقق من الاتصال...
+    </div>
+  </div>
+
+  <script>
+    function updateStatus() {
+      const status = document.getElementById('status');
+      if (navigator.onLine) {
+        status.textContent = '✓ الاتصال استعيد بنجاح. سيتم التحديث تلقائياً...';
+        status.style.borderLeft = '4px solid #10b981';
+        setTimeout(() => {
+          window.location.href = '/';
+        }, 1000);
+      } else {
+        status.textContent = '✗ لا يوجد اتصال بالإنترنت حالياً';
+        status.style.borderLeft = '4px solid #ef4444';
+      }
+    }
+
+    window.addEventListener('online', updateStatus);
+    window.addEventListener('offline', updateStatus);
+
+    updateStatus();
+
+    // Check connection every 2 seconds
+    setInterval(updateStatus, 2000);
+  </script>
+</body>
+</html>
