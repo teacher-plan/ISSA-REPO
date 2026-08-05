@@ -39,6 +39,7 @@ export function CardDesigner({
   // The freshly generated design wins the preview; otherwise show what is
   // already live, so the page always previews something real.
   const previewTheme = design.theme ?? savedTheme;
+  const previewKind = design.kind ?? savedKind;
   const isDraft = design.theme !== null;
 
   return (
@@ -138,6 +139,7 @@ export function CardDesigner({
           points={7}
           threshold={rewardThreshold ?? 10}
           theme={previewTheme}
+          kind={previewKind}
         />
 
         <p className="mt-3 text-xs text-primary-500">

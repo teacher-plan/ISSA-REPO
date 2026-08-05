@@ -30,3 +30,32 @@ export const BUSINESS_KIND_LABELS: Record<BusinessKind, string> = {
   carwash: "غسيل سيارات",
   other: "أخرى",
 };
+
+/**
+ * What one stamp represents, in the wording the customer's own trade uses —
+ * the loyalty card's stamp counter reads "٣/٩ القهوة" for a cafe and
+ * "٢/٤ الغسلات" for a laundry rather than one generic word for every trade.
+ */
+export const BUSINESS_KIND_STAMP_LABEL: Record<BusinessKind, string> = {
+  cafe: "القهوة",
+  restaurant: "الوجبات",
+  bakery: "المشتريات",
+  salon: "الجلسات",
+  barber: "القصّات",
+  laundry: "الغسلات",
+  grocery: "المشتريات",
+  pharmacy: "الزيارات",
+  gym: "الحصص",
+  carwash: "الغسلات",
+  other: "الزيارات",
+};
+
+/**
+ * `business_settings.card_business_kind` is a plain `text` column, not a DB
+ * enum — the same "parse, don't cast" caution as `card_theme` jsonb applies:
+ * a value written by an older schema, or edited by hand, must degrade to a
+ * safe fallback rather than crash the icon lookup.
+ */
+export function isBusinessKind(value: string | null | undefined): value is BusinessKind {
+  return !!value && value in BUSINESS_KIND_LABELS;
+}

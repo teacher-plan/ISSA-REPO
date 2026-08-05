@@ -53,6 +53,7 @@ export default async function PublicCardPage({
         holderName={card.customer_name}
         points={card.current_points}
         threshold={card.reward_threshold}
+        kind={card.card_business_kind}
         qrSvg={qrSvg}
       />
 

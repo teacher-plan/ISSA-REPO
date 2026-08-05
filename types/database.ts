@@ -171,6 +171,8 @@ export type PublicCard = {
   sync_status: WalletCardSyncStatus;
   /** See BusinessSettings.card_theme — parse, don't cast. */
   card_theme: unknown;
+  /** See BusinessSettings.card_business_kind — validate with isBusinessKind(). */
+  card_business_kind: string | null;
 };
 
 /**

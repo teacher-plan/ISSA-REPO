@@ -87,6 +87,7 @@ export default function Home() {
               holderName="سارة المعمري"
               points={7}
               threshold={10}
+              kind="cafe"
             />
           </div>
           <p className="mt-6 text-center text-sm text-white/50">
