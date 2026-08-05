@@ -97,6 +97,7 @@ export default async function DashboardPage() {
         <NavTile href="/dashboard/quick-add" label="إضافة نقاط سريعة" primary />
         <NavTile href="/dashboard/customers" label="العملاء" primary />
         <NavTile href="/dashboard/rewards" label="المكافآت" />
+        <NavTile href="/dashboard/card-design" label="تصميم البطاقة" />
         <NavTile href="/dashboard/loyalty-program" label="برنامج الولاء" />
         <NavTile href="/dashboard/employees" label="الموظفون" />
         <NavTile href="/dashboard/analytics" label="التحليلات" />

@@ -39,6 +39,14 @@ export type BusinessSettings = {
   passkit_tier_id: string | null;
   /** Google Wallet LoyaltyClass id — the Google equivalent of Program+Tier. */
   google_wallet_class_id: string | null;
+  /**
+   * The generated card identity, as jsonb. Deliberately `unknown`: what the
+   * database returns is whatever was written, possibly by an older version of
+   * the schema, so callers must parse it with cardThemeSchema rather than cast.
+   */
+  card_theme: unknown;
+  card_business_kind: string | null;
+  card_theme_generated_at: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -161,6 +169,8 @@ export type PublicCard = {
   wallet_url_apple: string | null;
   wallet_url_google: string | null;
   sync_status: WalletCardSyncStatus;
+  /** See BusinessSettings.card_theme — parse, don't cast. */
+  card_theme: unknown;
 };
 
 /**

@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { renderCardQrSvg } from "@/lib/wallet/qr";
 import { BrandMark } from "@/components/brand/brand-mark";
 import { LoyaltyCardVisual } from "@/components/brand/loyalty-card";
+import { cardThemeSchema } from "@/lib/card-design/theme";
 
 const STATUS_LABELS: Record<string, string> = {
   created: "جاري تحضير إضافة البطاقة إلى المحفظة...",
@@ -32,6 +33,14 @@ export default async function PublicCardPage({
   // provider is configured and for customers who never add the pass.
   const qrSvg = await renderCardQrSvg(id);
 
+  // jsonb round-trips as whatever was stored, so parse rather than cast — a
+  // theme written by an older schema version must degrade to the house design,
+  // not render a broken card.
+  const parsedTheme = card.card_theme
+    ? cardThemeSchema.safeParse(card.card_theme)
+    : null;
+  const theme = parsedTheme?.success ? parsedTheme.data : null;
+
   return (
     <div className="mx-auto flex min-h-screen max-w-sm flex-col justify-center px-5 py-10">
       <div className="flex items-center gap-3">
@@ -56,6 +65,7 @@ export default async function PublicCardPage({
           a customer who carries three of these should recognise all three. */}
       <LoyaltyCardVisual
         className="mt-5"
+        theme={theme}
         businessName={card.business_name}
         holderName={card.customer_name}
         points={card.current_points}
