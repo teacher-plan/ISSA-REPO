@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { requireRole } from "@/lib/auth/require-role";
-import { getOwnedBusiness } from "@/lib/auth/session";
+import { getBusinessStats, getOwnedBusiness } from "@/lib/auth/session";
 import { LogoutButton } from "@/components/auth/logout-button";
 
 export default async function DashboardPage() {
@@ -34,6 +34,8 @@ export default async function DashboardPage() {
     redirect("/onboarding/business");
   }
 
+  const stats = await getBusinessStats(business.id);
+
   return (
     <div className="mx-auto max-w-3xl px-6 py-12">
       <div className="flex items-center justify-between">
@@ -46,6 +48,12 @@ export default async function DashboardPage() {
           </p>
         </div>
         <div className="flex items-center gap-4">
+          <Link
+            href="/dashboard/loyalty-program"
+            className="text-sm underline hover:text-zinc-700 dark:hover:text-zinc-300"
+          >
+            برنامج الولاء
+          </Link>
           <Link
             href="/dashboard/settings"
             className="text-sm underline hover:text-zinc-700 dark:hover:text-zinc-300"
@@ -63,8 +71,11 @@ export default async function DashboardPage() {
       </div>
 
       <div className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-4">
-        <StatCard label="العملاء" value="0" />
-        <StatCard label="النقاط الموزعة" value="0" />
+        <StatCard label="العملاء" value={String(stats.customerCount)} />
+        <StatCard
+          label="النقاط الموزعة"
+          value={String(stats.pointsDistributed)}
+        />
         <StatCard label="المكافآت المستبدلة" value="0" />
         <StatCard label="بطاقات المحفظة النشطة" value="0" />
       </div>
