@@ -38,17 +38,17 @@ export function WalletProviderForm({
   return (
     <div className="mt-8 flex flex-col gap-8">
       {settings && (
-        <div className="rounded-lg border border-zinc-200 p-4 text-sm dark:border-zinc-800">
+        <div className="rounded-lg border border-primary-200 p-4 text-sm dark:border-primary-800">
           <p>
             المزوّد المُفعّل حاليًا: <strong>{settings.provider_name}</strong>
           </p>
-          <p className="mt-1 text-zinc-500" dir="ltr">
+          <p className="mt-1 text-primary-500" dir="ltr">
             API Key: {settings.api_key.slice(0, 4)}••••••••
           </p>
           <form action={deactivateWalletProvider} className="mt-3">
             <button
               type="submit"
-              className="text-sm text-red-600 underline hover:text-red-700"
+              className="text-sm text-error-600 underline hover:text-error-700"
             >
               إيقاف هذا المزوّد
             </button>
@@ -57,7 +57,7 @@ export function WalletProviderForm({
       )}
 
       <form action={saveAction} className="flex flex-col gap-4">
-        <h2 className="text-sm font-medium text-zinc-500">
+        <h2 className="text-sm font-medium text-primary-500">
           {settings ? "تغيير المزوّد" : "إعداد مزوّد جديد"}
         </h2>
 
@@ -70,12 +70,12 @@ export function WalletProviderForm({
             name="provider_name"
             value={provider}
             onChange={(e) => setProvider(e.target.value as "passkit" | "google")}
-            className="rounded-md border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+            className="rounded-md border border-primary-300 px-3 py-2.5 text-base min-h-touch dark:border-primary-700 dark:bg-primary-900"
           >
             <option value="passkit">PassKit (Apple + Google)</option>
             <option value="google">Google Wallet (مباشر)</option>
           </select>
-          <p className="text-xs text-zinc-500">
+          <p className="text-xs text-primary-500">
             {isGoogle
               ? "مجاني — يحتاج حساب Issuer من Google Pay & Wallet Console فقط، بدون رسوم سنوية."
               : "يتطلب حساب مطور Apple ($99/سنة) بالإضافة إلى اشتراك PassKit."}
@@ -93,7 +93,7 @@ export function WalletProviderForm({
             required
             dir="ltr"
             placeholder={isGoogle ? "3388000000022xxxxxx" : undefined}
-            className="rounded-md border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+            className="rounded-md border border-primary-300 px-3 py-2.5 text-base min-h-touch dark:border-primary-700 dark:bg-primary-900"
           />
         </div>
 
@@ -109,7 +109,7 @@ export function WalletProviderForm({
               dir="ltr"
               rows={6}
               placeholder={'{\n  "client_email": "...",\n  "private_key": "-----BEGIN PRIVATE KEY-----..."\n}'}
-              className="rounded-md border border-zinc-300 px-3 py-2 font-mono text-xs dark:border-zinc-700 dark:bg-zinc-900"
+              className="rounded-md border border-primary-300 px-3 py-2 font-mono text-xs dark:border-primary-700 dark:bg-primary-900"
             />
           ) : (
             <input
@@ -118,23 +118,23 @@ export function WalletProviderForm({
               type="password"
               required
               dir="ltr"
-              className="rounded-md border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+              className="rounded-md border border-primary-300 px-3 py-2.5 text-base min-h-touch dark:border-primary-700 dark:bg-primary-900"
             />
           )}
           {isGoogle && (
-            <p className="text-xs text-zinc-500">
+            <p className="text-xs text-primary-500">
               الصق محتوى ملف مفتاح حساب الخدمة كاملًا كما نزّلته من Google Cloud.
             </p>
           )}
         </div>
 
         {saveState.error && (
-          <p className="text-sm text-red-600" role="alert">
+          <p className="text-sm text-error-600" role="alert">
             {saveState.error}
           </p>
         )}
         {saveState.success && (
-          <p className="text-sm text-emerald-600" role="status">
+          <p className="text-sm text-success-600" role="status">
             تم حفظ إعدادات المزوّد.
           </p>
         )}
@@ -142,7 +142,7 @@ export function WalletProviderForm({
         <button
           type="submit"
           disabled={savePending}
-          className="rounded-full bg-zinc-900 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-zinc-700 disabled:opacity-50 dark:bg-zinc-50 dark:text-zinc-900 dark:hover:bg-zinc-200"
+          className="rounded-full bg-primary-900 px-5 py-2.5 text-sm font-medium min-h-touch text-white transition-colors hover:bg-primary-700 disabled:opacity-50 dark:bg-primary-50 dark:text-primary-900 dark:hover:bg-primary-200"
         >
           {savePending ? "جاري الحفظ..." : "حفظ الإعدادات"}
         </button>
@@ -150,10 +150,10 @@ export function WalletProviderForm({
 
       {settings && (
         <form action={testAction} className="flex flex-col gap-3">
-          <h2 className="text-sm font-medium text-zinc-500">اختبار الاتصال</h2>
+          <h2 className="text-sm font-medium text-primary-500">اختبار الاتصال</h2>
           {testState.testResult && (
             <p
-              className={`text-sm ${testState.testResult.ok ? "text-emerald-600" : "text-red-600"}`}
+              className={`text-sm ${testState.testResult.ok ? "text-success-600" : "text-error-600"}`}
               role="status"
             >
               {testState.testResult.message}
@@ -162,7 +162,7 @@ export function WalletProviderForm({
           <button
             type="submit"
             disabled={testPending}
-            className="w-fit rounded-full border border-zinc-300 px-5 py-2.5 text-sm font-medium hover:bg-zinc-50 disabled:opacity-50 dark:border-zinc-700 dark:hover:bg-zinc-900"
+            className="w-fit rounded-full border border-primary-300 px-5 py-2.5 text-sm font-medium min-h-touch hover:bg-primary-50 disabled:opacity-50 dark:border-primary-700 dark:hover:bg-primary-900"
           >
             {testPending ? "جاري الاختبار..." : "اختبار الاتصال"}
           </button>

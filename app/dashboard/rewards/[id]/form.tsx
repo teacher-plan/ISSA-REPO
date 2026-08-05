@@ -26,7 +26,7 @@ export function EditRewardForm({ reward }: { reward: Reward }) {
             type="text"
             required
             defaultValue={reward.name}
-            className="rounded-md border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+            className="rounded-md border border-primary-300 px-3 py-2.5 text-base min-h-touch dark:border-primary-700 dark:bg-primary-900"
           />
         </div>
 
@@ -39,7 +39,7 @@ export function EditRewardForm({ reward }: { reward: Reward }) {
             name="description"
             rows={2}
             defaultValue={reward.description ?? ""}
-            className="rounded-md border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+            className="rounded-md border border-primary-300 px-3 py-2.5 text-base min-h-touch dark:border-primary-700 dark:bg-primary-900"
           />
         </div>
 
@@ -52,7 +52,7 @@ export function EditRewardForm({ reward }: { reward: Reward }) {
             name="image_url"
             type="url"
             defaultValue={reward.image_url ?? ""}
-            className="rounded-md border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+            className="rounded-md border border-primary-300 px-3 py-2.5 text-base min-h-touch dark:border-primary-700 dark:bg-primary-900"
           />
         </div>
 
@@ -68,7 +68,7 @@ export function EditRewardForm({ reward }: { reward: Reward }) {
               min={1}
               required
               defaultValue={reward.points_required}
-              className="rounded-md border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+              className="rounded-md border border-primary-300 px-3 py-2.5 text-base min-h-touch dark:border-primary-700 dark:bg-primary-900"
             />
           </div>
 
@@ -82,7 +82,7 @@ export function EditRewardForm({ reward }: { reward: Reward }) {
               type="number"
               min={0}
               defaultValue={reward.quantity ?? ""}
-              className="rounded-md border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+              className="rounded-md border border-primary-300 px-3 py-2.5 text-base min-h-touch dark:border-primary-700 dark:bg-primary-900"
             />
           </div>
         </div>
@@ -98,12 +98,12 @@ export function EditRewardForm({ reward }: { reward: Reward }) {
         </label>
 
         {state.error && (
-          <p className="text-sm text-red-600" role="alert">
+          <p className="text-sm text-error-600" role="alert">
             {state.error}
           </p>
         )}
         {state.success && (
-          <p className="text-sm text-emerald-600" role="status">
+          <p className="text-sm text-success-600" role="status">
             تم الحفظ بنجاح.
           </p>
         )}
@@ -111,7 +111,7 @@ export function EditRewardForm({ reward }: { reward: Reward }) {
         <button
           type="submit"
           disabled={pending}
-          className="mt-2 rounded-full bg-zinc-900 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-zinc-700 disabled:opacity-50 dark:bg-zinc-50 dark:text-zinc-900 dark:hover:bg-zinc-200"
+          className="mt-2 rounded-full bg-primary-900 px-5 py-2.5 text-sm font-medium min-h-touch text-white transition-colors hover:bg-primary-700 disabled:opacity-50 dark:bg-primary-50 dark:text-primary-900 dark:hover:bg-primary-200"
         >
           {pending ? "جاري الحفظ..." : "حفظ التعديلات"}
         </button>
@@ -120,7 +120,7 @@ export function EditRewardForm({ reward }: { reward: Reward }) {
       <form action={deleteReward.bind(null, reward.id)} className="mt-4">
         <button
           type="submit"
-          className="text-sm text-red-600 underline hover:text-red-700"
+          className="text-sm text-error-600 underline hover:text-error-700"
         >
           حذف المكافأة
         </button>

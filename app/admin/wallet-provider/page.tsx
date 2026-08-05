@@ -12,15 +12,15 @@ export default async function WalletProviderPage() {
     <div className="mx-auto max-w-2xl px-6 py-12">
       <Link
         href="/admin"
-        className="text-sm text-zinc-500 underline hover:text-zinc-700 dark:hover:text-zinc-300"
+        className="text-sm text-primary-500 underline hover:text-primary-700 dark:hover:text-primary-300"
       >
         ← رجوع للوحة تحكم المنصة
       </Link>
 
-      <h1 className="mt-4 text-2xl font-semibold text-zinc-900 dark:text-zinc-50">
+      <h1 className="mt-4 text-2xl font-semibold text-primary-900 dark:text-primary-50">
         مزوّد المحفظة الرقمية
       </h1>
-      <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
+      <p className="mt-2 text-sm text-primary-600 dark:text-primary-400">
         إعداد مزوّد Apple Wallet / Google Wallet المستخدم لإصدار بطاقات الولاء
         لجميع المحلات على المنصة.
       </p>

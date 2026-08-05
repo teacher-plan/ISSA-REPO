@@ -12,7 +12,7 @@ export function NewEmployeeForm() {
   );
 
   return (
-    <form action={formAction} className="mt-6 flex flex-col gap-4 rounded-lg border border-zinc-200 p-4 dark:border-zinc-800">
+    <form action={formAction} className="mt-6 flex flex-col gap-4 rounded-lg border border-primary-200 p-4 dark:border-primary-800">
       <div className="flex flex-col gap-1.5">
         <label htmlFor="full_name" className="text-sm font-medium">
           الاسم الكامل
@@ -22,7 +22,7 @@ export function NewEmployeeForm() {
           name="full_name"
           type="text"
           required
-          className="rounded-md border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+          className="rounded-md border border-primary-300 px-3 py-2.5 text-base min-h-touch dark:border-primary-700 dark:bg-primary-900"
         />
       </div>
 
@@ -36,7 +36,7 @@ export function NewEmployeeForm() {
           type="email"
           required
           dir="ltr"
-          className="rounded-md border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+          className="rounded-md border border-primary-300 px-3 py-2.5 text-base min-h-touch dark:border-primary-700 dark:bg-primary-900"
         />
       </div>
 
@@ -52,9 +52,9 @@ export function NewEmployeeForm() {
           minLength={8}
           dir="ltr"
           placeholder="8 أحرف على الأقل"
-          className="rounded-md border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+          className="rounded-md border border-primary-300 px-3 py-2.5 text-base min-h-touch dark:border-primary-700 dark:bg-primary-900"
         />
-        <p className="text-xs text-zinc-500">
+        <p className="text-xs text-primary-500">
           أعطِ هذه الكلمة للموظف مباشرة ليسجّل دخوله بها.
         </p>
       </div>
@@ -76,12 +76,12 @@ export function NewEmployeeForm() {
       </fieldset>
 
       {state.error && (
-        <p className="text-sm text-red-600" role="alert">
+        <p className="text-sm text-error-600" role="alert">
           {state.error}
         </p>
       )}
       {state.success && (
-        <p className="text-sm text-emerald-600" role="status">
+        <p className="text-sm text-success-600" role="status">
           تم إنشاء حساب الموظف بنجاح.
         </p>
       )}
@@ -89,7 +89,7 @@ export function NewEmployeeForm() {
       <button
         type="submit"
         disabled={pending}
-        className="w-fit rounded-full bg-zinc-900 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-zinc-700 disabled:opacity-50 dark:bg-zinc-50 dark:text-zinc-900 dark:hover:bg-zinc-200"
+        className="w-fit rounded-full bg-primary-900 px-5 py-2.5 text-sm font-medium min-h-touch text-white transition-colors hover:bg-primary-700 disabled:opacity-50 dark:bg-primary-50 dark:text-primary-900 dark:hover:bg-primary-200"
       >
         {pending ? "جاري الإنشاء..." : "إضافة موظف"}
       </button>

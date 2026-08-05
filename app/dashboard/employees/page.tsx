@@ -19,30 +19,30 @@ export default async function EmployeesPage() {
     <div className="mx-auto max-w-2xl px-6 py-12">
       <Link
         href="/dashboard"
-        className="text-sm text-zinc-500 underline hover:text-zinc-700 dark:hover:text-zinc-300"
+        className="text-sm text-primary-500 underline hover:text-primary-700 dark:hover:text-primary-300"
       >
         ← رجوع للوحة التحكم
       </Link>
 
-      <h1 className="mt-4 text-2xl font-semibold text-zinc-900 dark:text-zinc-50">
+      <h1 className="mt-4 text-2xl font-semibold text-primary-900 dark:text-primary-50">
         الموظفون
       </h1>
 
       {employees.length === 0 ? (
-        <p className="mt-6 text-sm text-zinc-500">لا يوجد موظفون بعد.</p>
+        <p className="mt-6 text-sm text-primary-500">لا يوجد موظفون بعد.</p>
       ) : (
-        <ul className="mt-6 divide-y divide-zinc-200 dark:divide-zinc-800">
+        <ul className="mt-6 divide-y divide-primary-200 dark:divide-primary-800">
           {employees.map((emp) => (
             <li key={emp.id} className="flex items-center justify-between py-3">
               <div>
                 <p className="text-sm font-medium">{emp.profile?.full_name}</p>
-                <p className="text-xs text-zinc-500" dir="ltr">
+                <p className="text-xs text-primary-500" dir="ltr">
                   {emp.profile?.email}
                 </p>
               </div>
               <div className="flex items-center gap-3">
                 <span
-                  className={`text-xs ${emp.status === "active" ? "text-emerald-600" : "text-zinc-500"}`}
+                  className={`text-xs ${emp.status === "active" ? "text-success-600" : "text-primary-500"}`}
                 >
                   {emp.status === "active" ? "نشط" : "موقوف"}
                 </span>
@@ -55,7 +55,7 @@ export default async function EmployeesPage() {
                 >
                   <button
                     type="submit"
-                    className="rounded-full border border-zinc-300 px-3 py-1 text-xs hover:bg-zinc-50 dark:border-zinc-700 dark:hover:bg-zinc-900"
+                    className="rounded-full border border-primary-300 px-3 py-1 text-xs hover:bg-primary-50 dark:border-primary-700 dark:hover:bg-primary-900"
                   >
                     {emp.status === "active" ? "إيقاف" : "تفعيل"}
                   </button>
@@ -66,7 +66,7 @@ export default async function EmployeesPage() {
         </ul>
       )}
 
-      <h2 className="mt-8 text-sm font-medium text-zinc-500">إضافة موظف جديد</h2>
+      <h2 className="mt-8 text-sm font-medium text-primary-500">إضافة موظف جديد</h2>
       <NewEmployeeForm />
     </div>
   );

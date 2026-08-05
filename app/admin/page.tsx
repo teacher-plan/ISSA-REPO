@@ -13,13 +13,13 @@ export default async function AdminPage() {
       <div className="mt-6 flex flex-col items-center gap-3">
         <Link
           href="/admin/businesses"
-          className="text-sm underline hover:text-zinc-700 dark:hover:text-zinc-300"
+          className="text-sm underline hover:text-primary-700 dark:hover:text-primary-300"
         >
           المحلات والاشتراكات
         </Link>
         <Link
           href="/admin/wallet-provider"
-          className="text-sm underline hover:text-zinc-700 dark:hover:text-zinc-300"
+          className="text-sm underline hover:text-primary-700 dark:hover:text-primary-300"
         >
           مزوّد المحفظة الرقمية
         </Link>

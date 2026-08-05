@@ -50,66 +50,66 @@ export default async function CustomerProfilePage({
     <div className="mx-auto max-w-2xl px-6 py-12">
       <Link
         href="/dashboard/customers"
-        className="text-sm text-zinc-500 underline hover:text-zinc-700 dark:hover:text-zinc-300"
+        className="text-sm text-primary-500 underline hover:text-primary-700 dark:hover:text-primary-300"
       >
         ← رجوع لقائمة العملاء
       </Link>
 
       <div className="mt-4 flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-50">
+        <h1 className="text-2xl font-semibold text-primary-900 dark:text-primary-50">
           {customer.name}
         </h1>
         <div className="flex gap-6 text-center">
           <div>
             <p className="text-xl font-semibold">{customer.total_points}</p>
-            <p className="text-xs text-zinc-500">نقطة</p>
+            <p className="text-xs text-primary-500">نقطة</p>
           </div>
           <div>
             <p className="text-xl font-semibold">{customer.total_visits}</p>
-            <p className="text-xs text-zinc-500">زيارة</p>
+            <p className="text-xs text-primary-500">زيارة</p>
           </div>
         </div>
       </div>
 
-      <h2 className="mt-8 text-sm font-medium text-zinc-500">بطاقة المحفظة</h2>
+      <h2 className="mt-8 text-sm font-medium text-primary-500">بطاقة المحفظة</h2>
       <WalletCardStatus customerId={customer.id} walletCard={walletCard} />
 
-      <h2 className="mt-8 text-sm font-medium text-zinc-500">تسجيل عملية</h2>
+      <h2 className="mt-8 text-sm font-medium text-primary-500">تسجيل عملية</h2>
       <AddPointsForm customerId={customer.id} program={program} />
 
-      <h2 className="mt-8 text-sm font-medium text-zinc-500">استبدال مكافأة</h2>
+      <h2 className="mt-8 text-sm font-medium text-primary-500">استبدال مكافأة</h2>
       <RedeemRewardForm
         customerId={customer.id}
         rewards={rewards}
         customerPoints={customer.total_points}
       />
 
-      <h2 className="mt-8 text-sm font-medium text-zinc-500">بيانات العميل</h2>
+      <h2 className="mt-8 text-sm font-medium text-primary-500">بيانات العميل</h2>
       <EditCustomerForm customer={customer} />
 
-      <h2 className="mt-10 text-sm font-medium text-zinc-500">سجل العمليات</h2>
+      <h2 className="mt-10 text-sm font-medium text-primary-500">سجل العمليات</h2>
       {transactions.length === 0 ? (
-        <p className="mt-3 text-sm text-zinc-500">لا توجد عمليات بعد.</p>
+        <p className="mt-3 text-sm text-primary-500">لا توجد عمليات بعد.</p>
       ) : (
-        <ul className="mt-3 divide-y divide-zinc-200 dark:divide-zinc-800">
+        <ul className="mt-3 divide-y divide-primary-200 dark:divide-primary-800">
           {transactions.map((tx) => (
             <li key={tx.id} className="flex items-center justify-between py-2.5 text-sm">
               <div>
                 <span className="font-medium">{TYPE_LABELS[tx.type] ?? tx.type}</span>
                 {tx.description && (
-                  <span className="mr-2 text-zinc-500">— {tx.description}</span>
+                  <span className="mr-2 text-primary-500">— {tx.description}</span>
                 )}
               </div>
               <div className="flex items-center gap-3">
                 <span
                   className={
-                    tx.type === "redeem" ? "text-red-600" : "text-emerald-600"
+                    tx.type === "redeem" ? "text-error-600" : "text-success-600"
                   }
                 >
                   {tx.type === "redeem" ? "-" : "+"}
                   {tx.points}
                 </span>
-                <span className="text-xs text-zinc-500" dir="ltr">
+                <span className="text-xs text-primary-500" dir="ltr">
                   {new Date(tx.created_at).toLocaleString("ar")}
                 </span>
               </div>

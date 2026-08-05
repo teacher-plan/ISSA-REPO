@@ -36,7 +36,7 @@ export default async function EmployeePage({
     return (
       <div className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-6 py-12 text-center">
         <h1 className="text-xl font-semibold">تم إيقاف حسابك</h1>
-        <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
+        <p className="mt-2 text-sm text-primary-600 dark:text-primary-400">
           تواصل مع صاحب المحل لإعادة تفعيل حسابك.
         </p>
         <div className="mt-6">
@@ -63,7 +63,7 @@ export default async function EmployeePage({
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-semibold">{business.name}</h1>
-          <p className="text-sm text-zinc-500">
+          <p className="text-sm text-primary-500">
             مرحبًا {profile.full_name || profile.email}
           </p>
         </div>
@@ -90,23 +90,23 @@ export default async function EmployeePage({
           defaultValue={phone ?? ""}
           required
           placeholder="رقم هاتف العميل"
-          className="flex-1 rounded-md border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+          className="flex-1 rounded-md border border-primary-300 px-3 py-2.5 text-base min-h-touch dark:border-primary-700 dark:bg-primary-900"
         />
         <button
           type="submit"
-          className="rounded-full bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700 dark:bg-zinc-50 dark:text-zinc-900 dark:hover:bg-zinc-200"
+          className="rounded-full bg-primary-900 px-4 py-2 text-sm font-medium min-h-touch text-white hover:bg-primary-700 dark:bg-primary-50 dark:text-primary-900 dark:hover:bg-primary-200"
         >
           بحث
         </button>
       </form>
 
       {phone && !customer && (
-        <div className="mt-6 rounded-lg border border-zinc-200 p-4 text-sm dark:border-zinc-800">
+        <div className="mt-6 rounded-lg border border-primary-200 p-4 text-sm dark:border-primary-800">
           <p>لا يوجد عميل بهذا الرقم.</p>
           {employee.permissions.manage_customers ? (
             <EmployeeNewCustomerForm defaultPhone={phone} />
           ) : (
-            <p className="mt-2 text-xs text-zinc-500">
+            <p className="mt-2 text-xs text-primary-500">
               تواصل مع صاحب المحل لإضافة هذا العميل.
             </p>
           )}
@@ -115,12 +115,12 @@ export default async function EmployeePage({
 
       {customer && (
         <div className="mt-6">
-          <div className="rounded-lg border border-zinc-200 p-4 dark:border-zinc-800">
+          <div className="rounded-lg border border-primary-200 p-4 dark:border-primary-800">
             <p className="font-medium">{customer.name}</p>
-            <p className="text-xs text-zinc-500" dir="ltr">
+            <p className="text-xs text-primary-500" dir="ltr">
               {customer.phone}
             </p>
-            <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
+            <p className="mt-2 text-sm text-primary-600 dark:text-primary-400">
               {customer.total_points} نقطة · {customer.total_visits} زيارة
             </p>
           </div>

@@ -34,7 +34,7 @@ export function SubscriptionAdminForm({
           id="plan_name"
           name="plan_name"
           defaultValue={subscription.plan_name}
-          className="rounded-md border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+          className="rounded-md border border-primary-300 px-3 py-2.5 text-base min-h-touch dark:border-primary-700 dark:bg-primary-900"
         >
           {plans.map((plan) => (
             <option key={plan.plan_name} value={plan.plan_name as PlanName}>
@@ -52,7 +52,7 @@ export function SubscriptionAdminForm({
           id="status"
           name="status"
           defaultValue={subscription.status}
-          className="rounded-md border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+          className="rounded-md border border-primary-300 px-3 py-2.5 text-base min-h-touch dark:border-primary-700 dark:bg-primary-900"
         >
           <option value="trial">تجريبي</option>
           <option value="active">نشط</option>
@@ -70,17 +70,17 @@ export function SubscriptionAdminForm({
           name="end_date"
           type="date"
           defaultValue={subscription.end_date ?? ""}
-          className="rounded-md border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+          className="rounded-md border border-primary-300 px-3 py-2.5 text-base min-h-touch dark:border-primary-700 dark:bg-primary-900"
         />
       </div>
 
       {state.error && (
-        <p className="text-sm text-red-600" role="alert">
+        <p className="text-sm text-error-600" role="alert">
           {state.error}
         </p>
       )}
       {state.success && (
-        <p className="text-sm text-emerald-600" role="status">
+        <p className="text-sm text-success-600" role="status">
           تم الحفظ بنجاح.
         </p>
       )}
@@ -88,7 +88,7 @@ export function SubscriptionAdminForm({
       <button
         type="submit"
         disabled={pending}
-        className="mt-2 w-fit rounded-full bg-zinc-900 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-zinc-700 disabled:opacity-50 dark:bg-zinc-50 dark:text-zinc-900 dark:hover:bg-zinc-200"
+        className="mt-2 w-fit rounded-full bg-primary-900 px-5 py-2.5 text-sm font-medium min-h-touch text-white transition-colors hover:bg-primary-700 disabled:opacity-50 dark:bg-primary-50 dark:text-primary-900 dark:hover:bg-primary-200"
       >
         {pending ? "جاري الحفظ..." : "حفظ"}
       </button>

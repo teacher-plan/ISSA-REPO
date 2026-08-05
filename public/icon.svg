@@ -1,34 +1,41 @@
 <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
-  <!-- Background gradient -->
+  <!--
+    Placeholder app icon. Drawn as flat shapes with no text elements so it
+    stays legible at 96px, where a glyph would collapse into a smudge.
+    Replace wholesale when the real brand mark exists, then re-run
+    `npm run generate-icons`.
+  -->
   <defs>
-    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#1f2937;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#111827;stop-opacity:1" />
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1f2937"/>
+      <stop offset="1" stop-color="#0f172a"/>
     </linearGradient>
-    <linearGradient id="grad2" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#f59e0b;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#d97706;stop-opacity:1" />
+    <linearGradient id="card" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fbbf24"/>
+      <stop offset="1" stop-color="#d97706"/>
     </linearGradient>
   </defs>
 
-  <!-- Background -->
-  <rect width="512" height="512" fill="url(#grad1)" rx="100"/>
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
 
-  <!-- Card shape (loyalty card) -->
-  <rect x="80" y="120" width="352" height="272" fill="url(#grad2)" rx="24"/>
+  <!-- loyalty card -->
+  <rect x="86" y="146" width="340" height="220" rx="28" fill="url(#card)"/>
 
-  <!-- Card shine effect -->
-  <ellipse cx="200" cy="180" rx="80" ry="40" fill="white" opacity="0.15"/>
+  <!-- gloss -->
+  <path d="M86 214 L426 146 v44 L86 258 Z" fill="#ffffff" opacity="0.14"/>
 
-  <!-- Points circle -->
-  <circle cx="256" cy="320" r="60" fill="white" opacity="0.95"/>
-  <text x="256" y="335" font-size="48" font-weight="700" text-anchor="middle" fill="#d97706" font-family="Arial, sans-serif">✓</text>
+  <!-- star, fully inside the card -->
+  <path
+    d="M256 196 l19 47 51 4 -39 33 12 50 -43 -27 -43 27 12 -50 -39 -33 51 -4 Z"
+    fill="#ffffff" opacity="0.95"/>
 
-  <!-- Star accent -->
-  <polygon points="256,100 268,140 310,140 280,170 292,210 256,180 220,210 232,170 202,140 244,140" fill="white" opacity="0.9"/>
+  <!-- stamp row: three collected, two empty — reads as "progress" -->
+  <circle cx="176" cy="326" r="15" fill="#ffffff" opacity="0.95"/>
+  <circle cx="216" cy="326" r="15" fill="#ffffff" opacity="0.95"/>
+  <circle cx="256" cy="326" r="15" fill="#ffffff" opacity="0.95"/>
+  <circle cx="296" cy="326" r="15" fill="none" stroke="#ffffff" stroke-width="4" opacity="0.55"/>
+  <circle cx="336" cy="326" r="15" fill="none" stroke="#ffffff" stroke-width="4" opacity="0.55"/>
 
-  <!-- Subtitle points -->
-  <circle cx="150" cy="420" r="16" fill="#f59e0b" opacity="0.7"/>
-  <circle cx="256" cy="435" r="16" fill="#f59e0b" opacity="0.7"/>
-  <circle cx="362" cy="420" r="16" fill="#f59e0b" opacity="0.7"/>
+  <!-- phone-ish base bar, hints "digital wallet" -->
+  <rect x="196" y="404" width="120" height="14" rx="7" fill="#f59e0b" opacity="0.85"/>
 </svg>

@@ -18,32 +18,32 @@ export default async function AdminBusinessesPage() {
     <div className="mx-auto max-w-3xl px-6 py-12">
       <Link
         href="/admin"
-        className="text-sm text-zinc-500 underline hover:text-zinc-700 dark:hover:text-zinc-300"
+        className="text-sm text-primary-500 underline hover:text-primary-700 dark:hover:text-primary-300"
       >
         ← رجوع للوحة تحكم المنصة
       </Link>
 
-      <h1 className="mt-4 text-2xl font-semibold text-zinc-900 dark:text-zinc-50">
+      <h1 className="mt-4 text-2xl font-semibold text-primary-900 dark:text-primary-50">
         المحلات والاشتراكات
       </h1>
 
       {businesses.length === 0 ? (
-        <p className="mt-6 text-sm text-zinc-500">لا توجد محلات بعد.</p>
+        <p className="mt-6 text-sm text-primary-500">لا توجد محلات بعد.</p>
       ) : (
-        <ul className="mt-6 divide-y divide-zinc-200 dark:divide-zinc-800">
+        <ul className="mt-6 divide-y divide-primary-200 dark:divide-primary-800">
           {businesses.map((b) => (
             <li key={b.id}>
               <Link
                 href={`/admin/businesses/${b.id}`}
-                className="flex items-center justify-between py-3 hover:bg-zinc-50 dark:hover:bg-zinc-900"
+                className="flex items-center justify-between py-3 hover:bg-primary-50 dark:hover:bg-primary-900"
               >
                 <div>
                   <p className="text-sm font-medium">{b.name}</p>
-                  <p className="text-xs text-zinc-500">
+                  <p className="text-xs text-primary-500">
                     {b.subscription?.plan_name ?? "—"}
                   </p>
                 </div>
-                <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                <p className="text-sm text-primary-600 dark:text-primary-400">
                   {STATUS_LABELS[b.subscription?.status ?? ""] ?? "—"}
                 </p>
               </Link>

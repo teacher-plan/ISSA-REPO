@@ -14,10 +14,10 @@ export default function RegisterPage() {
 
   return (
     <div className="mx-auto flex min-h-screen max-w-sm flex-col justify-center px-6 py-12">
-      <h1 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-50">
+      <h1 className="text-2xl font-semibold text-primary-900 dark:text-primary-50">
         إنشاء حساب صاحب محل
       </h1>
-      <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
+      <p className="mt-2 text-sm text-primary-600 dark:text-primary-400">
         ابدأ تجربتك المجانية وأنشئ برنامج الولاء الرقمي لمحلك.
       </p>
 
@@ -32,7 +32,7 @@ export default function RegisterPage() {
             type="text"
             required
             autoComplete="name"
-            className="rounded-md border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+            className="rounded-md border border-primary-300 px-3 py-2.5 text-base min-h-touch dark:border-primary-700 dark:bg-primary-900"
           />
         </div>
 
@@ -46,7 +46,7 @@ export default function RegisterPage() {
             type="email"
             required
             autoComplete="email"
-            className="rounded-md border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+            className="rounded-md border border-primary-300 px-3 py-2.5 text-base min-h-touch dark:border-primary-700 dark:bg-primary-900"
           />
         </div>
 
@@ -61,12 +61,12 @@ export default function RegisterPage() {
             required
             minLength={8}
             autoComplete="new-password"
-            className="rounded-md border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+            className="rounded-md border border-primary-300 px-3 py-2.5 text-base min-h-touch dark:border-primary-700 dark:bg-primary-900"
           />
         </div>
 
         {state.error && (
-          <p className="text-sm text-red-600" role="alert">
+          <p className="text-sm text-error-600" role="alert">
             {state.error}
           </p>
         )}
@@ -74,13 +74,13 @@ export default function RegisterPage() {
         <button
           type="submit"
           disabled={pending}
-          className="mt-2 rounded-full bg-zinc-900 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-zinc-700 disabled:opacity-50 dark:bg-zinc-50 dark:text-zinc-900 dark:hover:bg-zinc-200"
+          className="mt-2 rounded-full bg-primary-900 px-5 py-2.5 text-sm font-medium min-h-touch text-white transition-colors hover:bg-primary-700 disabled:opacity-50 dark:bg-primary-50 dark:text-primary-900 dark:hover:bg-primary-200"
         >
           {pending ? "جاري الإنشاء..." : "إنشاء الحساب"}
         </button>
       </form>
 
-      <p className="mt-6 text-sm text-zinc-600 dark:text-zinc-400">
+      <p className="mt-6 text-sm text-primary-600 dark:text-primary-400">
         لديك حساب بالفعل؟{" "}
         <Link href="/auth/login" className="font-medium underline">
           تسجيل الدخول

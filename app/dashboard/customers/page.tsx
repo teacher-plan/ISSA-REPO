@@ -22,18 +22,18 @@ export default async function CustomersPage({
     <div className="mx-auto max-w-3xl px-6 py-12">
       <Link
         href="/dashboard"
-        className="text-sm text-zinc-500 underline hover:text-zinc-700 dark:hover:text-zinc-300"
+        className="text-sm text-primary-500 underline hover:text-primary-700 dark:hover:text-primary-300"
       >
         ← رجوع للوحة التحكم
       </Link>
 
       <div className="mt-4 flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-50">
+        <h1 className="text-2xl font-semibold text-primary-900 dark:text-primary-50">
           العملاء
         </h1>
         <Link
           href="/dashboard/customers/new"
-          className="rounded-full bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700 dark:bg-zinc-50 dark:text-zinc-900 dark:hover:bg-zinc-200"
+          className="rounded-full bg-primary-900 px-4 py-2 text-sm font-medium min-h-touch text-white hover:bg-primary-700 dark:bg-primary-50 dark:text-primary-900 dark:hover:bg-primary-200"
         >
           + إضافة عميل
         </Link>
@@ -45,29 +45,29 @@ export default async function CustomersPage({
           name="q"
           defaultValue={q ?? ""}
           placeholder="ابحث بالاسم أو رقم الهاتف..."
-          className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+          className="w-full rounded-md border border-primary-300 px-3 py-2.5 text-base min-h-touch dark:border-primary-700 dark:bg-primary-900"
         />
       </form>
 
       {customers.length === 0 ? (
-        <p className="mt-10 text-sm text-zinc-500">
+        <p className="mt-10 text-sm text-primary-500">
           {q ? "لا توجد نتائج مطابقة." : "لا يوجد عملاء بعد. أضف أول عميل."}
         </p>
       ) : (
-        <ul className="mt-6 divide-y divide-zinc-200 dark:divide-zinc-800">
+        <ul className="mt-6 divide-y divide-primary-200 dark:divide-primary-800">
           {customers.map((customer) => (
             <li key={customer.id}>
               <Link
                 href={`/dashboard/customers/${customer.id}`}
-                className="flex items-center justify-between py-3 hover:bg-zinc-50 dark:hover:bg-zinc-900"
+                className="flex items-center justify-between py-3 hover:bg-primary-50 dark:hover:bg-primary-900"
               >
                 <div>
                   <p className="text-sm font-medium">{customer.name}</p>
-                  <p className="text-xs text-zinc-500" dir="ltr">
+                  <p className="text-xs text-primary-500" dir="ltr">
                     {customer.phone}
                   </p>
                 </div>
-                <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                <p className="text-sm text-primary-600 dark:text-primary-400">
                   {customer.total_points} نقطة
                 </p>
               </Link>

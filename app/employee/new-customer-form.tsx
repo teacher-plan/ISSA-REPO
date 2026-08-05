@@ -13,7 +13,7 @@ export function EmployeeNewCustomerForm({ defaultPhone }: { defaultPhone: string
 
   if (state.customerId) {
     return (
-      <p className="mt-3 text-sm text-emerald-600" role="status">
+      <p className="mt-3 text-sm text-success-600" role="status">
         تمت إضافة العميل. ابحث برقم هاتفه لتسجيل نقاطه.
       </p>
     );
@@ -30,19 +30,19 @@ export function EmployeeNewCustomerForm({ defaultPhone }: { defaultPhone: string
           name="name"
           type="text"
           required
-          className="rounded-md border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+          className="rounded-md border border-primary-300 px-3 py-2.5 text-base min-h-touch dark:border-primary-700 dark:bg-primary-900"
         />
       </div>
       <input type="hidden" name="phone" value={defaultPhone} />
       {state.error && (
-        <p className="text-sm text-red-600" role="alert">
+        <p className="text-sm text-error-600" role="alert">
           {state.error}
         </p>
       )}
       <button
         type="submit"
         disabled={pending}
-        className="w-fit rounded-full bg-zinc-900 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-zinc-700 disabled:opacity-50 dark:bg-zinc-50 dark:text-zinc-900 dark:hover:bg-zinc-200"
+        className="w-fit rounded-full bg-primary-900 px-5 py-2.5 text-sm font-medium min-h-touch text-white transition-colors hover:bg-primary-700 disabled:opacity-50 dark:bg-primary-50 dark:text-primary-900 dark:hover:bg-primary-200"
       >
         {pending ? "جاري الإضافة..." : "إضافة العميل"}
       </button>
