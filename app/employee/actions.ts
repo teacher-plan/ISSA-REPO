@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getBusinessForEmployee, getCurrentUser } from "@/lib/auth/session";
+import { parseScanToken } from "@/lib/wallet/scan-token";
 
 export interface EmployeeActionState {
   error: string | null;
@@ -61,6 +62,120 @@ export async function addPointsAsEmployee(
   revalidatePath("/employee");
 
   return { error: null, success: true };
+}
+
+export interface ScannedCard {
+  walletCardId: string;
+  customerId: string;
+  customerName: string;
+  customerPhone: string;
+  totalPoints: number;
+  totalVisits: number;
+  rewardThreshold: number | null;
+}
+
+export interface ScanState {
+  error: string | null;
+  card: ScannedCard | null;
+}
+
+/**
+ * Turns a scanned QR payload into the customer behind it.
+ *
+ * resolve_wallet_card() returns no rows both for an unknown code and for a
+ * card belonging to another business, and this deliberately reports the same
+ * message for each — otherwise an employee could probe which UUIDs are live
+ * cards at a competing shop.
+ */
+export async function resolveScannedCard(rawToken: string): Promise<ScanState> {
+  await requireActiveEmployee();
+
+  const token = parseScanToken(rawToken);
+  if (!token) {
+    return { error: "الرمز غير صالح.", card: null };
+  }
+
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .rpc("resolve_wallet_card", { p_wallet_card_id: token })
+    .maybeSingle();
+
+  if (error) {
+    return { error: error.message, card: null };
+  }
+  if (!data) {
+    return { error: "بطاقة غير معروفة أو ليست لهذا المحل.", card: null };
+  }
+
+  return {
+    error: null,
+    card: {
+      walletCardId: data.wallet_card_id,
+      customerId: data.customer_id,
+      customerName: data.customer_name,
+      customerPhone: data.customer_phone,
+      totalPoints: data.total_points,
+      totalVisits: data.total_visits,
+      rewardThreshold: data.reward_threshold,
+    },
+  };
+}
+
+export interface ScanEarnState {
+  error: string | null;
+  awarded: number | null;
+  newTotal: number | null;
+}
+
+/**
+ * The whole point of the scanner: resolve the code and award points in one
+ * round trip, so the employee taps once.
+ *
+ * The card is re-resolved server-side rather than trusting a customerId sent
+ * from the browser — the client could otherwise post any id it liked.
+ */
+export async function awardPointsByScan(
+  rawToken: string,
+  points: number
+): Promise<ScanEarnState> {
+  const { business, employee } = await requireActiveEmployee();
+
+  if (!employee.permissions.add_points) {
+    return { error: "لا تملك صلاحية إضافة النقاط.", awarded: null, newTotal: null };
+  }
+
+  if (!Number.isFinite(points) || points <= 0) {
+    return { error: "عدد النقاط يجب أن يكون أكبر من صفر.", awarded: null, newTotal: null };
+  }
+
+  const resolved = await resolveScannedCard(rawToken);
+  if (resolved.error || !resolved.card) {
+    return { error: resolved.error ?? "بطاقة غير معروفة.", awarded: null, newTotal: null };
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("record_points_transaction", {
+    p_business_id: business.id,
+    p_customer_id: resolved.card.customerId,
+    p_type: "earn",
+    p_points: points,
+    p_description: "مسح رمز البطاقة",
+  });
+
+  if (error) {
+    const message = error.message.includes("throttled")
+      ? "تم تسجيل نقاط لهذا العميل قبل قليل. انتظر قليلًا ثم أعد المسح."
+      : error.message;
+    return { error: message, awarded: null, newTotal: null };
+  }
+
+  revalidatePath("/employee");
+
+  return {
+    error: null,
+    awarded: points,
+    newTotal: resolved.card.totalPoints + points,
+  };
 }
 
 export interface CreateCustomerState {

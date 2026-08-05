@@ -1,11 +1,11 @@
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { renderCardQrSvg } from "@/lib/wallet/qr";
 
 const STATUS_LABELS: Record<string, string> = {
-  created: "جاري تحضير البطاقة...",
+  created: "جاري تحضير إضافة البطاقة إلى المحفظة...",
   generating: "جاري إصدار البطاقة...",
   syncing: "جاري تحديث البطاقة...",
-  failed: "تعذّر إصدار البطاقة حاليًا، حاول لاحقًا.",
 };
 
 export default async function PublicCardPage({
@@ -25,6 +25,10 @@ export default async function PublicCardPage({
   }
 
   const card = data;
+  // The code the employee scans at the counter. Rendered here — not only on
+  // the wallet pass — so the loop works on any phone, before a wallet
+  // provider is configured and for customers who never add the pass.
+  const qrSvg = await renderCardQrSvg(id);
   const progress =
     card.reward_threshold && card.reward_threshold > 0
       ? Math.min(100, Math.round((card.current_points / card.reward_threshold) * 100))
@@ -69,6 +73,16 @@ export default async function PublicCardPage({
         )}
       </div>
 
+      <div className="mt-6 w-full rounded-2xl bg-white p-4 shadow-md">
+        <div
+          className="mx-auto w-full max-w-[240px] [&>svg]:h-auto [&>svg]:w-full"
+          dangerouslySetInnerHTML={{ __html: qrSvg }}
+        />
+        <p className="mt-3 text-xs text-primary-500">
+          اعرض هذا الرمز للموظف عند الشراء
+        </p>
+      </div>
+
       <div className="mt-8 flex w-full flex-col gap-3">
         {card.wallet_url_apple && (
           <a
@@ -87,8 +101,15 @@ export default async function PublicCardPage({
           </a>
         )}
         {!card.wallet_url_apple && !card.wallet_url_google && (
-          <p className="text-sm text-zinc-500">
-            {STATUS_LABELS[card.sync_status] ?? "البطاقة غير متاحة حاليًا."}
+          // Deliberately understated. Before the QR existed, no wallet URL
+          // meant the card was unusable, so this said "couldn't issue the
+          // card". Now the QR above is the thing that actually earns points —
+          // adding it to a wallet is a convenience — so a sync failure must
+          // not read as though the card is broken.
+          <p className="text-xs text-primary-400">
+            {card.sync_status === "failed"
+              ? "إضافة البطاقة إلى المحفظة غير متاحة حاليًا — الرمز أعلاه يعمل كالمعتاد."
+              : (STATUS_LABELS[card.sync_status] ?? "")}
           </p>
         )}
       </div>

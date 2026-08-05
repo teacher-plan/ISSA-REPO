@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { requireRole } from "@/lib/auth/require-role";
 import {
@@ -69,7 +70,20 @@ export default async function EmployeePage({
         <LogoutButton />
       </div>
 
-      <form className="mt-6 flex gap-2" action="/employee" method="get">
+      {employee.permissions.add_points && (
+        <Link
+          href="/employee/scan"
+          className="min-h-touch mt-6 flex w-full items-center justify-center rounded-xl bg-primary-800 px-5 py-4 text-base font-semibold text-white"
+        >
+          مسح رمز البطاقة
+        </Link>
+      )}
+
+      <p className="mt-4 text-center text-xs text-primary-500">
+        أو ابحث برقم الهاتف
+      </p>
+
+      <form className="mt-2 flex gap-2" action="/employee" method="get">
         <input
           type="tel"
           name="phone"

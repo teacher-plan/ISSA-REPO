@@ -161,6 +161,23 @@ export type PublicCard = {
   sync_status: WalletCardSyncStatus;
 };
 
+/**
+ * Row shape of resolve_wallet_card() — what an employee learns from scanning
+ * the QR on a customer's wallet pass. Returns 0 rows when the card belongs to
+ * another business, so an unauthorised scan is indistinguishable from an
+ * unknown code.
+ */
+export type ResolvedWalletCard = {
+  wallet_card_id: string;
+  business_id: string;
+  customer_id: string;
+  customer_name: string;
+  customer_phone: string;
+  total_points: number;
+  total_visits: number;
+  reward_threshold: number | null;
+};
+
 export type PlanName = "starter" | "professional" | "enterprise";
 
 export type SubscriptionPlan = {
@@ -334,6 +351,10 @@ export type Database = {
       get_public_card: {
         Args: { p_wallet_card_id: string };
         Returns: PublicCard[];
+      };
+      resolve_wallet_card: {
+        Args: { p_wallet_card_id: string };
+        Returns: ResolvedWalletCard[];
       };
       get_top_rewards: {
         Args: { p_business_id: string; p_limit?: number };
