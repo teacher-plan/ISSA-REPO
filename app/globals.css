@@ -62,22 +62,40 @@
   --color-surface: var(--surface);
   --color-surface-raised: var(--surface-raised);
   --color-ink: var(--ink);
+  --color-hairline: var(--hairline);
 
   /* Touch targets — 44px is the minimum comfortable tap area */
   --spacing-touch: 2.75rem;
+
+  /* Radii. Cards are noticeably rounder than controls — the rounded rectangle
+     IS the brand motif (a loyalty card), so it should read as deliberate
+     rather than as a default border-radius. */
+  --radius-card: 1.25rem;
+  --radius-control: 0.75rem;
+
+  /* Elevation is warm, not neutral grey: a cool shadow under a gold card
+     reads as dirt. These are tinted toward the ink navy instead. */
+  --shadow-card: 0 1px 2px rgb(15 23 42 / 0.04), 0 8px 24px -12px rgb(15 23 42 / 0.18);
+  --shadow-lift: 0 2px 4px rgb(15 23 42 / 0.06), 0 16px 40px -16px rgb(15 23 42 / 0.28);
+  /* Reserved for the gold card motif, so it glows rather than casts. */
+  --shadow-gold: 0 10px 30px -10px rgb(217 119 6 / 0.45);
 }
 
 :root {
-  --surface: #ffffff;
-  --surface-raised: #f9fafb;
-  --ink: #111827;
+  /* Warm off-white, not #fff. Pure white next to gold looks clinical and
+     makes the gold read as a warning colour instead of a reward. */
+  --surface: #fdfcfa;
+  --surface-raised: #ffffff;
+  --ink: #0f172a;
+  --hairline: #e7e3dc;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --surface: #0f172a;
-    --surface-raised: #1e293b;
+    --surface: #0b1220;
+    --surface-raised: #131c2e;
     --ink: #f1f5f9;
+    --hairline: #24304a;
   }
 }
 

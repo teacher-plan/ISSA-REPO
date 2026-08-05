@@ -1,6 +1,8 @@
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { renderCardQrSvg } from "@/lib/wallet/qr";
+import { BrandMark } from "@/components/brand/brand-mark";
+import { LoyaltyCardVisual } from "@/components/brand/loyalty-card";
 
 const STATUS_LABELS: Record<string, string> = {
   created: "جاري تحضير إضافة البطاقة إلى المحفظة...",
@@ -29,61 +31,55 @@ export default async function PublicCardPage({
   // the wallet pass — so the loop works on any phone, before a wallet
   // provider is configured and for customers who never add the pass.
   const qrSvg = await renderCardQrSvg(id);
-  const progress =
-    card.reward_threshold && card.reward_threshold > 0
-      ? Math.min(100, Math.round((card.current_points / card.reward_threshold) * 100))
-      : null;
 
   return (
-    <div className="mx-auto flex min-h-screen max-w-sm flex-col items-center justify-center px-6 py-12 text-center">
-      {card.business_logo_url && (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={card.business_logo_url}
-          alt={card.business_name}
-          className="h-16 w-16 rounded-full object-cover"
-        />
-      )}
-
-      <h1 className="mt-4 text-xl font-semibold text-primary-900 dark:text-primary-50">
-        {card.business_name}
-      </h1>
-      <p className="mt-1 text-sm text-primary-600 dark:text-primary-400">
-        بطاقة ولاء {card.customer_name}
-      </p>
-
-      <div className="mt-8 w-full rounded-2xl border border-primary-200 p-6 dark:border-primary-800">
-        <p className="text-4xl font-bold" style={{ color: card.primary_color }}>
-          {card.current_points}
-        </p>
-        <p className="mt-1 text-sm text-primary-500">نقطة</p>
-
-        {progress !== null && (
-          <div className="mt-4">
-            <div className="h-2 w-full overflow-hidden rounded-full bg-primary-200 dark:bg-primary-800">
-              <div
-                className="h-full rounded-full"
-                style={{ width: `${progress}%`, backgroundColor: card.primary_color }}
-              />
-            </div>
-            <p className="mt-2 text-xs text-primary-500">
-              {card.current_points} / {card.reward_threshold} نقطة للمكافأة
-            </p>
-          </div>
+    <div className="mx-auto flex min-h-screen max-w-sm flex-col justify-center px-5 py-10">
+      <div className="flex items-center gap-3">
+        {card.business_logo_url ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={card.business_logo_url}
+            alt=""
+            className="h-11 w-11 rounded-full object-cover ring-1 ring-hairline"
+          />
+        ) : (
+          <BrandMark className="h-11 w-11" />
         )}
+        <div className="min-w-0">
+          <h1 className="truncate text-base font-bold">{card.business_name}</h1>
+          <p className="text-xs text-primary-500">بطاقة ولاء</p>
+        </div>
       </div>
 
-      <div className="mt-6 w-full rounded-2xl bg-white p-4 shadow-md">
+      {/* The card the whole identity is built around. It stays gold rather
+          than taking the shop's own colour: this is the platform's mark, and
+          a customer who carries three of these should recognise all three. */}
+      <LoyaltyCardVisual
+        className="mt-5"
+        businessName={card.business_name}
+        holderName={card.customer_name}
+        points={card.current_points}
+        threshold={card.reward_threshold}
+      />
+
+      {/* No separate progress bar here. The stamp row on the card already
+          shows the same thing, and a second meter in the shop's own colour
+          (which defaults to near-black) sat under the gold card looking like
+          it belonged to a different page. */}
+
+      {/* White plate regardless of theme: a QR inverted for dark mode is
+          unreliable to scan, and this is the one element that must work. */}
+      <div className="mt-6 rounded-card bg-white p-5 shadow-card">
         <div
-          className="mx-auto w-full max-w-[240px] [&>svg]:h-auto [&>svg]:w-full"
+          className="mx-auto w-full max-w-[230px] [&>svg]:h-auto [&>svg]:w-full"
           dangerouslySetInnerHTML={{ __html: qrSvg }}
         />
-        <p className="mt-3 text-xs text-primary-500">
+        <p className="mt-3 text-center text-xs font-medium text-primary-600">
           اعرض هذا الرمز للموظف عند الشراء
         </p>
       </div>
 
-      <div className="mt-8 flex w-full flex-col gap-3">
+      <div className="mt-6 flex w-full flex-col gap-3 text-center">
         {card.wallet_url_apple && (
           <a
             href={card.wallet_url_apple}
