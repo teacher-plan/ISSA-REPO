@@ -10,7 +10,7 @@ const sharp = require('sharp');
 const fs = require('fs');
 const path = require('path');
 
-const PUBLIC_DIR = path.join(__dirname, 'public');
+const PUBLIC_DIR = path.join(__dirname, '..', 'public');
 const SOURCE_SVG = path.join(PUBLIC_DIR, 'icon.svg');
 
 // Define icon sizes

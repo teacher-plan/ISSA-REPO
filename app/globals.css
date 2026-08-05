@@ -1,8 +1,19 @@
 @import "tailwindcss";
 
-:root {
-  /* Loyalty Brand Colors */
-  --color-primary: #1f2937;
+/*
+ * Tailwind v4 is CSS-first: design tokens MUST live in `@theme` for utility
+ * classes to be generated. Declaring them in a plain `:root` block defines the
+ * custom property but produces NO `bg-primary-800` / `text-accent-500` utility
+ * — and a `tailwind.config.ts` file is ignored entirely unless pulled in with
+ * an explicit `@config` directive. Add new tokens here, not in a JS config.
+ */
+@theme {
+  /* Fonts — Geist carries no Arabic glyphs, so an Arabic face is listed first
+     for the UI (the app is Arabic-first) and Geist handles Latin/numerals. */
+  --font-sans: var(--font-arabic), var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+
+  /* Primary — dark slate. Buttons, headers, body text. */
   --color-primary-50: #f9fafb;
   --color-primary-100: #f3f4f6;
   --color-primary-200: #e5e7eb;
@@ -14,8 +25,7 @@
   --color-primary-800: #1f2937;
   --color-primary-900: #111827;
 
-  /* Accent - Loyalty/Rewards Gold */
-  --color-accent: #f59e0b;
+  /* Accent — gold. Reserved for loyalty points and rewards. */
   --color-accent-50: #fffbeb;
   --color-accent-100: #fef3c7;
   --color-accent-200: #fde68a;
@@ -26,8 +36,7 @@
   --color-accent-700: #b45309;
   --color-accent-800: #92400e;
 
-  /* Success - Points */
-  --color-success: #10b981;
+  /* Success — points earned */
   --color-success-50: #ecfdf5;
   --color-success-100: #d1fae5;
   --color-success-500: #10b981;
@@ -35,177 +44,65 @@
   --color-success-700: #047857;
 
   /* Warning */
-  --color-warning: #f97316;
+  --color-warning-50: #fff7ed;
+  --color-warning-100: #ffedd5;
   --color-warning-500: #f97316;
   --color-warning-600: #ea580c;
+  --color-warning-800: #9a3412;
 
-  /* Error - Redemption/Issues */
-  --color-error: #ef4444;
+  /* Error */
   --color-error-50: #fef2f2;
   --color-error-100: #fee2e2;
   --color-error-500: #ef4444;
   --color-error-600: #dc2626;
+  --color-error-800: #991b1b;
 
-  /* Neutral */
-  --color-neutral-0: #ffffff;
-  --color-neutral-50: #f9fafb;
-  --color-neutral-100: #f3f4f6;
-  --color-neutral-200: #e5e7eb;
-  --color-neutral-300: #d1d5db;
-  --color-neutral-400: #9ca3af;
-  --color-neutral-500: #6b7280;
-  --color-neutral-600: #4b5563;
-  --color-neutral-700: #374151;
-  --color-neutral-800: #1f2937;
-  --color-neutral-900: #111827;
+  /* Surfaces — flip with the colour scheme via the :root blocks below */
+  --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
+  --color-ink: var(--ink);
 
-  /* Background */
-  --background: #ffffff;
-  --foreground: #111827;
-  --background-secondary: #f9fafb;
-  --background-tertiary: #f3f4f6;
+  /* Touch targets — 44px is the minimum comfortable tap area */
+  --spacing-touch: 2.75rem;
+}
 
-  /* Typography */
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-
-  /* Spacing (mobile-first) */
-  --spacing-xs: 0.25rem;
-  --spacing-sm: 0.5rem;
-  --spacing-md: 1rem;
-  --spacing-lg: 1.5rem;
-  --spacing-xl: 2rem;
-  --spacing-2xl: 3rem;
-
-  /* Border Radius */
-  --radius-sm: 0.375rem;
-  --radius-md: 0.5rem;
-  --radius-lg: 0.75rem;
-  --radius-xl: 1rem;
-  --radius-full: 9999px;
-
-  /* Shadows - Mobile optimized */
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-
-  /* Safe Area (for notch support) */
-  --safe-area-inset-top: env(safe-area-inset-top, 0);
-  --safe-area-inset-right: env(safe-area-inset-right, 0);
-  --safe-area-inset-bottom: env(safe-area-inset-bottom, 0);
-  --safe-area-inset-left: env(safe-area-inset-left, 0);
+:root {
+  --surface: #ffffff;
+  --surface-raised: #f9fafb;
+  --ink: #111827;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0f172a;
-    --foreground: #f1f5f9;
-    --background-secondary: #1e293b;
-    --background-tertiary: #334155;
+    --surface: #0f172a;
+    --surface-raised: #1e293b;
+    --ink: #f1f5f9;
   }
 }
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-html {
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background: var(--surface);
+  color: var(--ink);
   font-family: var(--font-sans);
   line-height: 1.6;
-  transition: background-color 0.2s, color 0.2s;
-  padding: max(0px, var(--safe-area-inset-top)) max(0px, var(--safe-area-inset-right)) max(0px, var(--safe-area-inset-bottom)) max(0px, var(--safe-area-inset-left));
+  /* Respect the notch / home indicator when installed as a PWA */
+  padding: env(safe-area-inset-top) env(safe-area-inset-right)
+           env(safe-area-inset-bottom) env(safe-area-inset-left);
 }
 
-/* Mobile-First Typography */
-h1 {
-  font-size: 1.875rem;
-  font-weight: 700;
-  line-height: 1.2;
-  letter-spacing: -0.02em;
-}
-
-h2 {
-  font-size: 1.5rem;
-  font-weight: 700;
-  line-height: 1.3;
-}
-
-h3 {
-  font-size: 1.25rem;
-  font-weight: 600;
-  line-height: 1.4;
-}
-
-h4 {
-  font-size: 1.125rem;
-  font-weight: 600;
-}
-
-p, span {
-  font-size: 1rem;
-  line-height: 1.6;
-}
-
-small {
-  font-size: 0.875rem;
-  line-height: 1.5;
-}
-
-/* Focus states for accessibility */
-:focus-visible {
-  outline: 2px solid var(--color-accent);
-  outline-offset: 2px;
-}
-
-button:focus-visible,
-a:focus-visible,
-input:focus-visible {
-  outline: 2px solid var(--color-accent);
-  outline-offset: 2px;
-}
-
-/* Prevent text selection on long-press */
-input,
-textarea,
-button {
-  -webkit-user-select: none;
-  user-select: none;
-  -webkit-touch-callout: none;
-}
-
-/* Safe scrolling on mobile */
 html {
-  scroll-behavior: smooth;
   -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
 }
 
-/* Utility classes */
-.safe-area-inset {
-  padding-top: var(--safe-area-inset-top);
-  padding-right: var(--safe-area-inset-right);
-  padding-bottom: var(--safe-area-inset-bottom);
-  padding-left: var(--safe-area-inset-left);
+/* Keep focus rings visible — they are the only affordance for keyboard users */
+:focus-visible {
+  outline: 2px solid var(--color-accent-500);
+  outline-offset: 2px;
 }
 
-.touch-safe {
-  min-height: 44px;
-  min-width: 44px;
-}
-
-.gradient-primary {
-  background: linear-gradient(135deg, var(--color-primary-700) 0%, var(--color-primary-900) 100%);
-}
-
-.gradient-accent {
-  background: linear-gradient(135deg, var(--color-accent-400) 0%, var(--color-accent-600) 100%);
+/* Long-pressing a control on iOS otherwise pops the text-selection callout */
+button,
+[role="button"] {
+  -webkit-touch-callout: none;
 }

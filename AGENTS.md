@@ -30,7 +30,14 @@ checklist (legal/business tasks, not code) are still to be built.
 ## Stack
 
 - **Framework**: Next.js 16 (App Router, Turbopack), React 19, TypeScript
-- **Styling**: Tailwind CSS v4
+- **Styling**: Tailwind CSS v4 — **CSS-first config**. Design tokens live in
+  the `@theme` block in `app/globals.css`. A token declared in a plain `:root`
+  block is a valid CSS variable but generates **no utility class**, so
+  `bg-primary-800` silently emits nothing — no error, no warning, the element
+  just renders unstyled. There is deliberately no `tailwind.config.ts`: v4
+  ignores it unless pulled in with an explicit `@config` directive, so adding
+  one looks like it works and does nothing. Verify a new token by building and
+  grepping `.next` for the class name.
 - **Backend**: Supabase (Postgres, Auth, RLS)
 - **Auth**: `@supabase/ssr`, cookie-based sessions, Server Actions for
   mutations (`'use server'`)

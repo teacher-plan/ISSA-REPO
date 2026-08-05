@@ -244,7 +244,8 @@ All components automatically adjust for RTL.
 ├── admin/                # Admin panel
 └── c/                    # Public wallet card pages
 
-/tailwind.config.ts       # Tailwind configuration with design tokens
+(no tailwind.config.ts — Tailwind v4 is CSS-first; tokens live in the
+                          @theme block inside app/globals.css)
 ```
 
 ---
@@ -264,16 +265,11 @@ Edit `app/globals.css` - find `:root` section:
 }
 ```
 
-Or update directly in `tailwind.config.ts`:
-
-```ts
-colors: {
-  primary: {
-    800: '#1f2937',
-    // ...
-  }
-}
-```
+> **Tailwind v4 note:** tokens must sit inside the `@theme` block. A value
+> declared in a plain `:root` block is a valid CSS variable but generates **no**
+> utility class — `bg-primary-800` would silently produce nothing. There is no
+> `tailwind.config.ts` in this project; v4 ignores it unless loaded with an
+> explicit `@config` directive.
 
 ### Change App Name & Description
 
@@ -314,7 +310,7 @@ Edit `public/manifest.json`:
    ```
 
 2. **Customize Brand Colors** (optional)
-   - Edit `app/globals.css` or `tailwind.config.ts`
+   - Edit the `@theme` block in `app/globals.css`
    - Change primary color from #1f2937 to your brand color
 
 3. **Update Content**

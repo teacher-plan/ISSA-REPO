@@ -23,6 +23,20 @@ const STATUS_COLORS: Record<string, string> = {
   cancelled: "text-zinc-500",
 };
 
+/**
+ * Whole days remaining in a trial, floored at 0.
+ *
+ * Lives outside the component because react-hooks/purity forbids calling
+ * Date.now() in a render body. This page is an async Server Component that
+ * runs once per request, so reading the clock is safe here — but keeping it in
+ * a plain helper documents that and keeps the rule honest for the components
+ * where it genuinely matters.
+ */
+function trialDaysLeft(endDate: string): number {
+  const msPerDay = 1000 * 60 * 60 * 24;
+  return Math.max(0, Math.ceil((new Date(endDate).getTime() - Date.now()) / msPerDay));
+}
+
 export default async function SubscriptionPage() {
   const profile = await requireRole("business_owner");
 
@@ -41,13 +55,7 @@ export default async function SubscriptionPage() {
   const currentPlan = plans.find((p) => p.plan_name === subscription?.plan_name);
   const daysLeft =
     subscription?.end_date && effectiveStatus === "trial"
-      ? Math.max(
-          0,
-          Math.ceil(
-            (new Date(subscription.end_date).getTime() - Date.now()) /
-              (1000 * 60 * 60 * 24)
-          )
-        )
+      ? trialDaysLeft(subscription.end_date)
       : null;
 
   return (

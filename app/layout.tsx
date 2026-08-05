@@ -1,10 +1,20 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import type { Metadata, Viewport } from "next";
+import { Geist, Geist_Mono, IBM_Plex_Sans_Arabic } from "next/font/google";
 import "./globals.css";
+import { ServiceWorkerRegistrar } from "@/components/pwa/service-worker-registrar";
+
+// Geist ships no Arabic glyphs, so every Arabic string in the UI was falling
+// back to whatever the OS picked. IBM_Plex_Sans_Arabic carries the Arabic
+// range and is listed ahead of Geist in --font-sans (see globals.css).
+const arabic = IBM_Plex_Sans_Arabic({
+  variable: "--font-arabic",
+  subsets: ["arabic"],
+  weight: ["400", "500", "600", "700"],
+});
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
-  subsets: ["latin", "arabic"],
+  subsets: ["latin"],
 });
 
 const geistMono = Geist_Mono({
@@ -36,34 +46,31 @@ export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"),
 };
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  // Fills the area behind the notch / home indicator so the PWA looks native;
+  // globals.css then pads the body back with env(safe-area-inset-*).
+  viewportFit: "cover",
+  // Deliberately NOT setting userScalable: false — blocking pinch-zoom locks
+  // out anyone who needs to magnify the screen.
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#0f172a" },
+  ],
+};
+
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="ar"
       dir="rtl"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${arabic.variable} ${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
-        <meta name="theme-color" content="#1f2937" />
-        <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-        <meta name="apple-mobile-web-app-title" content="Loyalty Wallet" />
-        <link rel="manifest" href="/manifest.json" />
-        <link rel="icon" type="image/png" href="/icon-192.png" />
-        <link rel="apple-touch-icon" href="/icon-192.png" />
-        <meta name="mobile-web-app-capable" content="yes" />
-      </head>
-      <body className="min-h-screen flex flex-col bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900 text-slate-900 dark:text-slate-50">
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('/service-worker.js');
-              }
-            `,
-          }}
-        />
+      {/* No manual <head>: the metadata/viewport exports above already emit the
+          manifest link, icons, theme-color and apple-web-app tags. */}
+      <body className="min-h-screen flex flex-col">
+        <ServiceWorkerRegistrar />
         {children}
       </body>
     </html>
