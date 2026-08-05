@@ -3,8 +3,9 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { getBusinessForEmployee, getCurrentUser } from "@/lib/auth/session";
+import { getBusinessForEmployee, getCurrentUser, getWalletCard } from "@/lib/auth/session";
 import { parseScanToken } from "@/lib/wallet/scan-token";
+import { renderCardQrSvg } from "@/lib/wallet/qr";
 
 export interface EmployeeActionState {
   error: string | null;
@@ -181,6 +182,12 @@ export async function awardPointsByScan(
 export interface CreateCustomerState {
   error: string | null;
   customerId: string | null;
+  /** The new customer's own scan code, so the employee can hand it over on
+   * the spot — without this, adding a customer left the employee with
+   * nothing to actually give them. Null only if the wallet card row (auto-
+   * provisioned by the on_customer_created trigger) hasn't landed yet. */
+  qrSvg: string | null;
+  cardUrl: string | null;
 }
 
 export async function createCustomerAsEmployee(
@@ -190,14 +197,14 @@ export async function createCustomerAsEmployee(
   const { business, employee } = await requireActiveEmployee();
 
   if (!employee.permissions.manage_customers) {
-    return { error: "لا تملك صلاحية إضافة عملاء.", customerId: null };
+    return { error: "لا تملك صلاحية إضافة عملاء.", customerId: null, qrSvg: null, cardUrl: null };
   }
 
   const name = String(formData.get("name") ?? "").trim();
   const phone = String(formData.get("phone") ?? "").trim();
 
   if (!name || !phone) {
-    return { error: "الاسم ورقم الهاتف مطلوبان.", customerId: null };
+    return { error: "الاسم ورقم الهاتف مطلوبان.", customerId: null, qrSvg: null, cardUrl: null };
   }
 
   const supabase = await createClient();
@@ -211,12 +218,18 @@ export async function createCustomerAsEmployee(
     const message = error.code === "23505"
       ? "يوجد عميل مسجّل بهذا الرقم مسبقًا."
       : error.message.replace(/^(subscription_inactive|customer_limit_reached):\s*/, "");
-    return { error: message, customerId: null };
+    return { error: message, customerId: null, qrSvg: null, cardUrl: null };
   }
 
   revalidatePath("/employee");
 
-  return { error: null, customerId: data.id };
+  // The on_customer_created trigger provisions the wallet_cards row in the
+  // same transaction as the insert above, so it is already there to read.
+  const walletCard = await getWalletCard(business.id, data.id);
+  const qrSvg = walletCard ? await renderCardQrSvg(walletCard.id) : null;
+  const cardUrl = walletCard ? `/c/${walletCard.id}` : null;
+
+  return { error: null, customerId: data.id, qrSvg, cardUrl };
 }
 
 export async function redeemRewardAsEmployee(

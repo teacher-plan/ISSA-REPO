@@ -22,9 +22,14 @@ const STATUS_COLORS: Record<string, string> = {
 export function WalletCardStatus({
   customerId,
   walletCard,
+  qrSvg,
 }: {
   customerId: string;
   walletCard: WalletCard | null;
+  /** The card's own scan code, rendered here — not just linked to — because
+   * this page is where an owner actually needs it: right after adding or
+   * finding this customer, to hand their card over on the spot. */
+  qrSvg: string | null;
 }) {
   if (!walletCard) return null;
 
@@ -39,6 +44,18 @@ export function WalletCardStatus({
 
       {walletCard.last_error && (
         <p className="mt-1 text-xs text-error-600">{walletCard.last_error}</p>
+      )}
+
+      {qrSvg && (
+        <div className="mt-4">
+          <p className="text-xs font-medium text-primary-500">
+            امسح هذا الرمز بجوال العميل لإضافة البطاقة إلى محفظته
+          </p>
+          <div
+            className="mt-2 w-full max-w-[180px] rounded-lg bg-white p-3 [&>svg]:h-auto [&>svg]:w-full"
+            dangerouslySetInnerHTML={{ __html: qrSvg }}
+          />
+        </div>
       )}
 
       <div className="mt-3 flex flex-wrap items-center gap-3">

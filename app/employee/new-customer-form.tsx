@@ -3,7 +3,12 @@
 import { useActionState } from "react";
 import { createCustomerAsEmployee, type CreateCustomerState } from "./actions";
 
-const initialState: CreateCustomerState = { error: null, customerId: null };
+const initialState: CreateCustomerState = {
+  error: null,
+  customerId: null,
+  qrSvg: null,
+  cardUrl: null,
+};
 
 export function EmployeeNewCustomerForm({ defaultPhone }: { defaultPhone: string }) {
   const [state, formAction, pending] = useActionState(
@@ -11,11 +16,30 @@ export function EmployeeNewCustomerForm({ defaultPhone }: { defaultPhone: string
     initialState
   );
 
+  // This is the moment the employee actually hands the customer their card —
+  // everything before this point was just data entry. Without the code
+  // rendered right here, "تمت الإضافة" is a dead end: the employee has no
+  // way to get the customer's own card in front of them.
   if (state.customerId) {
     return (
-      <p className="mt-3 text-sm text-success-600" role="status">
-        تمت إضافة العميل. ابحث برقم هاتفه لتسجيل نقاطه.
-      </p>
+      <div className="mt-3 rounded-xl border border-primary-200 p-4 dark:border-primary-800">
+        <p className="text-sm font-medium text-success-600" role="status">
+          تمت إضافة العميل — امسح هذا الرمز بجواله لإضافة البطاقة
+        </p>
+        {state.qrSvg ? (
+          <div
+            className="mx-auto mt-3 w-full max-w-[200px] rounded-lg bg-white p-3 [&>svg]:h-auto [&>svg]:w-full"
+            dangerouslySetInnerHTML={{ __html: state.qrSvg }}
+          />
+        ) : (
+          <p className="mt-2 text-xs text-primary-500">
+            جاري تحضير البطاقة — حدّث الصفحة بعد لحظات إن لم يظهر الرمز.
+          </p>
+        )}
+        <p className="mt-3 text-xs text-primary-500">
+          يمكنك أيضًا البحث برقم هاتفه لتسجيل نقاطه مباشرة.
+        </p>
+      </div>
     );
   }
 

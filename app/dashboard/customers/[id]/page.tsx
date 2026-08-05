@@ -9,6 +9,7 @@ import {
   getRewards,
   getWalletCard,
 } from "@/lib/auth/session";
+import { renderCardQrSvg } from "@/lib/wallet/qr";
 import { EditCustomerForm } from "./edit-form";
 import { AddPointsForm } from "./points-form";
 import { RedeemRewardForm } from "./redeem-form";
@@ -46,6 +47,11 @@ export default async function CustomerProfilePage({
     getWalletCard(business.id, customer.id),
   ]);
 
+  // Rendered here rather than deferred to the public page: this is the
+  // moment an owner actually needs the code — right after finding or adding
+  // this customer, to hand their card over — not two clicks later.
+  const qrSvg = walletCard ? await renderCardQrSvg(walletCard.id) : null;
+
   return (
     <div className="mx-auto max-w-2xl px-6 py-12">
       <Link
@@ -72,7 +78,7 @@ export default async function CustomerProfilePage({
       </div>
 
       <h2 className="mt-8 text-sm font-medium text-primary-500">بطاقة المحفظة</h2>
-      <WalletCardStatus customerId={customer.id} walletCard={walletCard} />
+      <WalletCardStatus customerId={customer.id} walletCard={walletCard} qrSvg={qrSvg} />
 
       <h2 className="mt-8 text-sm font-medium text-primary-500">تسجيل عملية</h2>
       <AddPointsForm customerId={customer.id} program={program} />
