@@ -197,6 +197,24 @@ export type CustomerGrowthWeek = {
   new_customers: number;
 };
 
+export type EmployeeStatus = "active" | "suspended";
+
+export type EmployeePermissions = {
+  add_points: boolean;
+  redeem_rewards: boolean;
+  manage_customers: boolean;
+};
+
+export type Employee = {
+  id: string;
+  business_id: string;
+  profile_id: string;
+  permissions: EmployeePermissions;
+  status: EmployeeStatus;
+  created_at: string;
+  updated_at: string;
+};
+
 export type Database = {
   public: {
     Tables: {
@@ -267,6 +285,12 @@ export type Database = {
         Insert: Partial<WalletCard> &
           Pick<WalletCard, "business_id" | "customer_id">;
         Update: Partial<WalletCard>;
+        Relationships: [];
+      };
+      employees: {
+        Row: Employee;
+        Insert: Partial<Employee> & Pick<Employee, "business_id" | "profile_id">;
+        Update: Partial<Employee>;
         Relationships: [];
       };
       subscription_plans: {
