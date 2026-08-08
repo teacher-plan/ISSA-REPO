@@ -47,8 +47,8 @@ export async function createBusiness(
     return { error: error.message };
   }
 
-  // Card design, then the shop's join QR, are the next two onboarding
-  // steps — not optional dashboard sections a new owner has to discover on
-  // their own.
-  redirect("/onboarding/card-design");
+  // The offer, then card design, then the shop's join QR, are the next
+  // onboarding steps — not optional dashboard sections a new owner has to
+  // discover on their own.
+  redirect("/onboarding/offer");
 }

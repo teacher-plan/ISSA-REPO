@@ -25,12 +25,17 @@ export function CardDesigner({
   savedTheme,
   savedKind,
   rewardThreshold,
+  offerText,
   nextHref,
 }: {
   businessName: string;
   savedTheme: CardTheme | null;
   savedKind: string | null;
   rewardThreshold: number | null;
+  /** The real offer text, so the preview shows what the card actually says
+   * rather than a placeholder — onboarding requires an offer to exist
+   * before this page is reachable at all (see FR-1 guard). */
+  offerText: string | null;
   /** Onboarding only: where "متابعة" goes once a design is adopted. Omitted
    * on the regular dashboard page, where adopting a design is a standalone
    * action with nowhere further to go. */
@@ -146,6 +151,7 @@ export function CardDesigner({
           threshold={rewardThreshold ?? 10}
           theme={previewTheme}
           kind={previewKind}
+          offerText={offerText}
         />
 
         <p className="mt-3 text-xs text-primary-500">

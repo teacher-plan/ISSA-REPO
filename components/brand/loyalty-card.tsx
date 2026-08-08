@@ -171,6 +171,10 @@ export function LoyaltyCardVisual({
   threshold,
   theme,
   kind,
+  /** The promise printed on the card ("اشترِ 9 واحصل على قهوة مجانًا") —
+   * see lib/loyalty/offer.ts. Omitted only for a card with no offer
+   * defined yet, which onboarding no longer allows past the offer step. */
+  offerText,
   /** Inline SVG for the scannable code. Omitted → the pass renders without it. */
   qrSvg,
   className = "",
@@ -182,6 +186,7 @@ export function LoyaltyCardVisual({
   threshold?: number | null;
   theme?: CardTheme | null;
   kind?: string | null;
+  offerText?: string | null;
   qrSvg?: string | null;
   className?: string;
 }) {
@@ -285,6 +290,17 @@ export function LoyaltyCardVisual({
             </div>
           )}
         </div>
+
+        {/* The promise, stated plainly — the one thing every card must say
+            regardless of trade or theme (SRS FR-2, region 2). Wraps to a
+            second line rather than shrinking to fit one: a font small enough
+            to force 60 characters onto one line of this width reads worse
+            than two lines at a size that's actually legible. */}
+        {offerText && (
+          <p className="mt-4 text-center text-[13px] font-bold leading-snug text-balance">
+            {offerText}
+          </p>
+        )}
 
         {total ? (
           <>

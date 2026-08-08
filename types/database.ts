@@ -53,6 +53,13 @@ export type BusinessSettings = {
 
 export type EarningType = "visit" | "amount";
 
+export type RewardType =
+  | "free_item"
+  | "percent_discount"
+  | "fixed_discount"
+  | "free_service"
+  | "custom";
+
 export type LoyaltyProgram = {
   id: string;
   business_id: string;
@@ -62,6 +69,14 @@ export type LoyaltyProgram = {
   points_per_visit: number;
   points_per_amount: number;
   reward_threshold: number;
+  reward_type: RewardType;
+  /** Item name, percentage, amount, or service name depending on
+   * reward_type — null only for reward_type "custom", where offer_text
+   * alone carries the whole promise. */
+  reward_value: string | null;
+  /** The promise as printed on the card, e.g. "اشترِ 9 واحصل على قهوة
+   * مجانًا" — auto-generated from the fields above but editable. */
+  offer_text: string;
   is_active: boolean;
   created_at: string;
   updated_at: string;
@@ -166,6 +181,7 @@ export type PublicCard = {
   customer_name: string;
   current_points: number;
   reward_threshold: number | null;
+  offer_text: string | null;
   wallet_url_apple: string | null;
   wallet_url_google: string | null;
   sync_status: WalletCardSyncStatus;

@@ -4,7 +4,16 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUser, getLoyaltyProgram, getOwnedBusiness } from "@/lib/auth/session";
-import type { EarningType } from "@/types/database";
+import { generateOfferText, validateOfferText } from "@/lib/loyalty/offer";
+import type { EarningType, RewardType } from "@/types/database";
+
+const REWARD_TYPES: RewardType[] = [
+  "free_item",
+  "percent_discount",
+  "fixed_discount",
+  "free_service",
+  "custom",
+];
 
 export interface LoyaltyProgramState {
   error: string | null;
@@ -34,6 +43,9 @@ export async function saveLoyaltyProgram(
   const pointsPerVisit = Number(formData.get("points_per_visit") ?? 1);
   const pointsPerAmount = Number(formData.get("points_per_amount") ?? 1);
   const rewardThreshold = Number(formData.get("reward_threshold") ?? 10);
+  const rewardType = String(formData.get("reward_type") ?? "free_item") as RewardType;
+  const rewardValue = String(formData.get("reward_value") ?? "").trim() || null;
+  const offerTextInput = String(formData.get("offer_text") ?? "").trim();
 
   if (!name) {
     return { error: "اسم برنامج الولاء مطلوب.", success: false };
@@ -43,6 +55,27 @@ export async function saveLoyaltyProgram(
   }
   if (rewardThreshold < 1) {
     return { error: "حد المكافأة يجب أن يكون أكبر من صفر.", success: false };
+  }
+  if (!REWARD_TYPES.includes(rewardType)) {
+    return { error: "نوع الجائزة غير صحيح.", success: false };
+  }
+  if (rewardType !== "custom" && !rewardValue) {
+    return { error: "قيمة الجائزة مطلوبة.", success: false };
+  }
+
+  // The client sends whatever it last rendered in the offer-text field —
+  // re-derive it server-side for non-custom types instead of trusting that
+  // value, the same "never trust a hidden/generated field, recompute it"
+  // rule the card-theme save action already follows. Only "custom" has no
+  // formula to recompute from, so the typed text is authoritative there.
+  const offerText =
+    rewardType === "custom"
+      ? offerTextInput
+      : generateOfferText(rewardThreshold, rewardType, rewardValue ?? "");
+
+  const offerTextError = validateOfferText(offerText);
+  if (offerTextError) {
+    return { error: offerTextError, success: false };
   }
 
   const supabase = await createClient();
@@ -56,6 +89,9 @@ export async function saveLoyaltyProgram(
     points_per_visit: pointsPerVisit,
     points_per_amount: pointsPerAmount,
     reward_threshold: rewardThreshold,
+    reward_type: rewardType,
+    reward_value: rewardValue,
+    offer_text: offerText,
     is_active: true,
   };
 
@@ -71,6 +107,7 @@ export async function saveLoyaltyProgram(
   }
 
   revalidatePath("/dashboard/loyalty-program");
+  revalidatePath("/onboarding/offer");
 
   return { error: null, success: true };
 }

@@ -23,6 +23,14 @@ export default async function OnboardingCardDesignPage() {
     getLoyaltyProgram(business.id),
   ]);
 
+  // The offer (FR-1) is the one onboarding step that isn't skippable — a
+  // card design with no offer behind it is a shape with no promise. An
+  // owner who lands here directly (a stale bookmark, a back button) gets
+  // sent to define one first rather than seeing a broken preview.
+  if (!program) {
+    redirect("/onboarding/offer");
+  }
+
   let savedTheme: CardTheme | null = null;
   if (settings?.card_theme) {
     const parsed = cardThemeSchema.safeParse(settings.card_theme);
@@ -31,7 +39,7 @@ export default async function OnboardingCardDesignPage() {
 
   return (
     <div className="mx-auto max-w-4xl px-5 py-8 sm:px-6 sm:py-12">
-      <p className="text-sm font-medium text-accent-600">الخطوة ٢ من ٣</p>
+      <p className="text-sm font-medium text-accent-600">الخطوة ٣ من ٤</p>
       <h1 className="mt-1 text-2xl font-bold">صمّم بطاقة الولاء</h1>
       <p className="mt-2 text-sm text-primary-600 dark:text-primary-400">
         هذا الشكل الذي سيراه عملاؤك على بطاقاتهم. اختر نوع نشاطك وسيُصمَّم
@@ -44,6 +52,7 @@ export default async function OnboardingCardDesignPage() {
         savedTheme={savedTheme}
         savedKind={settings?.card_business_kind ?? null}
         rewardThreshold={program?.reward_threshold ?? null}
+        offerText={program?.offer_text ?? null}
         nextHref="/onboarding/join-qr"
       />
 

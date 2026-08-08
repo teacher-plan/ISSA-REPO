@@ -24,7 +24,7 @@ export default async function OnboardingJoinQrPage() {
 
   return (
     <div className="mx-auto flex min-h-screen max-w-sm flex-col justify-center px-6 py-12">
-      <p className="text-sm font-medium text-accent-600">الخطوة ٣ من ٣</p>
+      <p className="text-sm font-medium text-accent-600">الخطوة ٤ من ٤</p>
       <h1 className="mt-1 text-2xl font-bold">رمز انضمام عملائك</h1>
       <p className="mt-2 text-sm text-primary-600 dark:text-primary-400">
         اطبع هذا الرمز وضعه عند الكاشير. أي عميل يمسحه بكاميرا جواله يحصل

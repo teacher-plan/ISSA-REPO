@@ -48,6 +48,7 @@ export default async function CardDesignPage() {
         savedTheme={savedTheme}
         savedKind={settings?.card_business_kind ?? null}
         rewardThreshold={program?.reward_threshold ?? null}
+        offerText={program?.offer_text ?? null}
       />
     </div>
   );

@@ -88,6 +88,7 @@ export default function Home() {
               points={7}
               threshold={10}
               kind="cafe"
+              offerText="اشترِ 10 واحصل على قهوة مجانًا"
             />
           </div>
           <p className="mt-6 text-center text-sm text-white/50">
