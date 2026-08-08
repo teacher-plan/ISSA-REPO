@@ -47,6 +47,10 @@ export type BusinessSettings = {
   card_theme: unknown;
   card_business_kind: string | null;
   card_theme_generated_at: string | null;
+  /** Months a new card stays valid from issuance, or null for no expiry.
+   * Changing this only affects cards issued after the change — see
+   * WalletCard.expires_at, which is computed once at issuance and stored. */
+  card_validity_months: number | null;
   created_at: string;
   updated_at: string;
 };
@@ -169,6 +173,9 @@ export type WalletCard = {
   sync_status: WalletCardSyncStatus;
   last_error: string | null;
   last_synced_at: string | null;
+  /** Set once at issuance from business_settings.card_validity_months at
+   * that moment — null means no expiry. See renew_wallet_card() to update. */
+  expires_at: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -182,6 +189,7 @@ export type PublicCard = {
   current_points: number;
   reward_threshold: number | null;
   offer_text: string | null;
+  expires_at: string | null;
   wallet_url_apple: string | null;
   wallet_url_google: string | null;
   sync_status: WalletCardSyncStatus;
@@ -401,6 +409,10 @@ export type Database = {
       resolve_wallet_card: {
         Args: { p_wallet_card_id: string };
         Returns: ResolvedWalletCard[];
+      };
+      renew_wallet_card: {
+        Args: { p_customer_id: string };
+        Returns: WalletCard;
       };
       get_top_rewards: {
         Args: { p_business_id: string; p_limit?: number };

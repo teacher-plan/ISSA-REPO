@@ -54,9 +54,11 @@ export async function addPointsAsEmployee(
   });
 
   if (error) {
-    const message = error.message.includes("throttled")
-      ? "تم تسجيل عملية مماثلة قبل قليل، الرجاء الانتظار ثم المحاولة مرة أخرى."
-      : error.message;
+    const message = error.message.includes("card_expired:")
+      ? error.message.replace(/^card_expired:\s*/, "")
+      : error.message.includes("throttled")
+        ? "تم تسجيل عملية مماثلة قبل قليل، الرجاء الانتظار ثم المحاولة مرة أخرى."
+        : error.message;
     return { error: message, success: false };
   }
 
@@ -164,9 +166,11 @@ export async function awardPointsByScan(
   });
 
   if (error) {
-    const message = error.message.includes("throttled")
-      ? "تم تسجيل نقاط لهذا العميل قبل قليل. انتظر قليلًا ثم أعد المسح."
-      : error.message;
+    const message = error.message.includes("card_expired:")
+      ? error.message.replace(/^card_expired:\s*/, "")
+      : error.message.includes("throttled")
+        ? "تم تسجيل نقاط لهذا العميل قبل قليل. انتظر قليلًا ثم أعد المسح."
+        : error.message;
     return { error: message, awarded: null, newTotal: null };
   }
 

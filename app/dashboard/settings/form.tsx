@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import {
   updateBusinessSettings,
   type BusinessSettingsState,
@@ -8,6 +8,14 @@ import {
 import type { Business, BusinessSettings, WalletProviderName } from "@/types/database";
 
 const initialState: BusinessSettingsState = { error: null, success: false };
+
+const VALIDITY_PRESETS = [3, 6, 12, 24];
+
+function validityToPreset(months: number | null): string {
+  if (months === null) return "none";
+  if (VALIDITY_PRESETS.includes(months)) return String(months);
+  return "custom";
+}
 
 export function BusinessSettingsForm({
   business,
@@ -25,6 +33,10 @@ export function BusinessSettingsForm({
   const [state, formAction, pending] = useActionState(
     updateBusinessSettings,
     initialState
+  );
+
+  const [validityPreset, setValidityPreset] = useState(() =>
+    validityToPreset(settings?.card_validity_months ?? null)
   );
 
   return (
@@ -109,6 +121,50 @@ export function BusinessSettingsForm({
             className="h-10 w-full rounded-md border border-primary-300 dark:border-primary-700"
           />
         </div>
+      </div>
+
+      <div className="mt-2 flex flex-col gap-1.5 rounded-xl border border-primary-200 p-4 dark:border-primary-800">
+        <label htmlFor="card_validity_preset" className="text-sm font-medium">
+          مدة صلاحية بطاقة العميل
+        </label>
+        <select
+          id="card_validity_preset"
+          name="card_validity_preset"
+          value={validityPreset}
+          onChange={(e) => setValidityPreset(e.target.value)}
+          className="rounded-md border border-primary-300 px-3 py-2.5 text-base min-h-touch dark:border-primary-700 dark:bg-primary-900"
+        >
+          <option value="none">بلا انتهاء</option>
+          <option value="3">3 أشهر</option>
+          <option value="6">6 أشهر</option>
+          <option value="12">12 شهرًا</option>
+          <option value="24">24 شهرًا</option>
+          <option value="custom">مدة مخصصة</option>
+        </select>
+
+        {validityPreset === "custom" && (
+          <input
+            name="card_validity_custom_months"
+            type="number"
+            min={1}
+            defaultValue={
+              settings?.card_validity_months &&
+              !VALIDITY_PRESETS.includes(settings.card_validity_months)
+                ? settings.card_validity_months
+                : ""
+            }
+            placeholder="عدد الأشهر"
+            className="mt-1 rounded-md border border-primary-300 px-3 py-2.5 text-base min-h-touch dark:border-primary-700 dark:bg-primary-900"
+          />
+        )}
+
+        <p className="text-xs text-primary-500">
+          تُحسب الصلاحية لكل بطاقة من تاريخ إصدارها لعميلها، وليس من تاريخ
+          تغييرك لهذا الإعداد — تعديله هنا لا يغيّر صلاحية بطاقات صادرة
+          مسبقًا. بعد الانتهاء تتوقف بطاقة العميل عن كسب نقاط جديدة، مع بقاء
+          حقه في استبدال أي مكافأة سبق أن استحقها. يمكنك تجديد بطاقة عميل
+          بعينه لاحقًا من صفحته.
+        </p>
       </div>
 
       <h2 className="mt-4 text-sm font-medium text-primary-500">

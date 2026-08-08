@@ -98,9 +98,11 @@ export async function addPointsTransaction(
   });
 
   if (error) {
-    const message = error.message.includes("throttled")
-      ? "تم تسجيل عملية مماثلة قبل قليل، الرجاء الانتظار ثم المحاولة مرة أخرى."
-      : error.message;
+    const message = error.message.includes("card_expired:")
+      ? error.message.replace(/^card_expired:\s*/, "")
+      : error.message.includes("throttled")
+        ? "تم تسجيل عملية مماثلة قبل قليل، الرجاء الانتظار ثم المحاولة مرة أخرى."
+        : error.message;
     return { error: message, success: false };
   }
 
@@ -155,6 +157,16 @@ export async function resyncWalletCard(customerId: string): Promise<void> {
   const { business } = await requireOwnerAndCustomer(customerId);
 
   await syncWalletCard(business.id, customerId);
+
+  revalidatePath(`/dashboard/customers/${customerId}`);
+  revalidatePath("/dashboard");
+}
+
+export async function renewWalletCard(customerId: string): Promise<void> {
+  await requireOwnerAndCustomer(customerId);
+
+  const supabase = await createClient();
+  await supabase.rpc("renew_wallet_card", { p_customer_id: customerId });
 
   revalidatePath(`/dashboard/customers/${customerId}`);
   revalidatePath("/dashboard");

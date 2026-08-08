@@ -1,5 +1,16 @@
-import { resyncWalletCard } from "./actions";
+import { renewWalletCard, resyncWalletCard } from "./actions";
 import type { WalletCard } from "@/types/database";
+
+/** Manual formatting, not toLocaleDateString('ar', ...) — see the same
+ * helper in components/brand/loyalty-card.tsx: the app renders numbers as
+ * Latin digits throughout. */
+function formatExpiryDate(iso: string): string {
+  const d = new Date(iso);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}/${m}/${day}`;
+}
 
 const STATUS_LABELS: Record<string, string> = {
   created: "لم تُصدر بعد",
@@ -33,6 +44,10 @@ export function WalletCardStatus({
 }) {
   if (!walletCard) return null;
 
+  const expired = walletCard.expires_at
+    ? new Date(walletCard.expires_at) < new Date()
+    : false;
+
   return (
     <div className="mt-3 rounded-lg border border-primary-200 p-4 text-sm dark:border-primary-800">
       <p>
@@ -44,6 +59,24 @@ export function WalletCardStatus({
 
       {walletCard.last_error && (
         <p className="mt-1 text-xs text-error-600">{walletCard.last_error}</p>
+      )}
+
+      {walletCard.expires_at && (
+        <div className="mt-2 flex flex-wrap items-center gap-3">
+          <p className={expired ? "text-error-600" : "text-primary-500"}>
+            {expired
+              ? "انتهت صلاحية هذه البطاقة — لا يمكن للعميل كسب نقاط جديدة عليها."
+              : `صالحة حتى ${formatExpiryDate(walletCard.expires_at)}`}
+          </p>
+          <form action={renewWalletCard.bind(null, customerId)}>
+            <button
+              type="submit"
+              className="rounded-full border border-primary-300 px-3 py-1 text-xs hover:bg-primary-50 dark:border-primary-700 dark:hover:bg-primary-900"
+            >
+              تجديد البطاقة
+            </button>
+          </form>
+        </div>
       )}
 
       {qrSvg && (

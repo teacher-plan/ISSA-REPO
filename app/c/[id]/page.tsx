@@ -39,6 +39,7 @@ export default async function PublicCardPage({
     ? cardThemeSchema.safeParse(card.card_theme)
     : null;
   const theme = parsedTheme?.success ? parsedTheme.data : null;
+  const expired = card.expires_at ? new Date(card.expires_at) < new Date() : false;
 
   return (
     <div className="mx-auto flex min-h-screen max-w-sm flex-col justify-center px-4 py-6">
@@ -55,37 +56,50 @@ export default async function PublicCardPage({
         threshold={card.reward_threshold}
         kind={card.card_business_kind}
         offerText={card.offer_text}
+        expiresAt={card.expires_at}
         qrSvg={qrSvg}
       />
 
       <div className="mt-5 flex w-full flex-col gap-3 text-center">
-        {card.wallet_url_apple && (
-          <a
-            href={card.wallet_url_apple}
-            className="rounded-full bg-black px-5 py-3 text-sm font-medium text-white"
-          >
-            إضافة إلى Apple Wallet
-          </a>
-        )}
-        {card.wallet_url_google && (
-          <a
-            href={card.wallet_url_google}
-            className="rounded-full bg-brand-800 px-5 py-3 text-sm font-medium text-white dark:bg-brand-100 dark:text-brand-900"
-          >
-            إضافة إلى Google Wallet
-          </a>
-        )}
-        {!card.wallet_url_apple && !card.wallet_url_google && (
-          // Deliberately understated. Before the QR existed, no wallet URL
-          // meant the card was unusable, so this said "couldn't issue the
-          // card". Now the QR above is the thing that actually earns points —
-          // adding it to a wallet is a convenience — so a sync failure must
-          // not read as though the card is broken.
-          <p className="text-xs text-primary-400">
-            {card.sync_status === "failed"
-              ? "إضافة البطاقة إلى المحفظة غير متاحة حاليًا — الرمز أعلاه يعمل كالمعتاد."
-              : (STATUS_LABELS[card.sync_status] ?? "")}
+        {expired ? (
+          // An expired card can't earn new points, so the wallet-add /
+          // scan-to-earn actions below no longer make sense to offer — the
+          // customer's actual next step is asking the shop for renewal, not
+          // downloading a pass that can't do anything.
+          <p className="rounded-xl border border-error-300 bg-error-50 px-4 py-3 text-sm font-medium text-error-700 dark:border-error-800 dark:bg-error-950 dark:text-error-300">
+            انتهت صلاحية هذه البطاقة — راجع المحل لتجديدها.
           </p>
+        ) : (
+          <>
+            {card.wallet_url_apple && (
+              <a
+                href={card.wallet_url_apple}
+                className="rounded-full bg-black px-5 py-3 text-sm font-medium text-white"
+              >
+                إضافة إلى Apple Wallet
+              </a>
+            )}
+            {card.wallet_url_google && (
+              <a
+                href={card.wallet_url_google}
+                className="rounded-full bg-brand-800 px-5 py-3 text-sm font-medium text-white dark:bg-brand-100 dark:text-brand-900"
+              >
+                إضافة إلى Google Wallet
+              </a>
+            )}
+            {!card.wallet_url_apple && !card.wallet_url_google && (
+              // Deliberately understated. Before the QR existed, no wallet URL
+              // meant the card was unusable, so this said "couldn't issue the
+              // card". Now the QR above is the thing that actually earns points —
+              // adding it to a wallet is a convenience — so a sync failure must
+              // not read as though the card is broken.
+              <p className="text-xs text-primary-400">
+                {card.sync_status === "failed"
+                  ? "إضافة البطاقة إلى المحفظة غير متاحة حاليًا — الرمز أعلاه يعمل كالمعتاد."
+                  : (STATUS_LABELS[card.sync_status] ?? "")}
+              </p>
+            )}
+          </>
         )}
       </div>
     </div>

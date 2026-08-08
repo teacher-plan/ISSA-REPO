@@ -151,6 +151,17 @@ function RewardTicket({ ready }: { ready: boolean }) {
   );
 }
 
+/** Manual formatting, not toLocaleDateString('ar', ...): the app renders all
+ * numbers as Latin digits (see app/page.tsx), and the 'ar' locale would
+ * print Arabic-Indic ones instead. */
+function formatExpiryDate(iso: string): string {
+  const d = new Date(iso);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}/${m}/${day}`;
+}
+
 /**
  * The loyalty pass, shaped like the wallet passes customers already carry:
  * a tall panel that fills the phone, not a landscape credit card.
@@ -175,6 +186,12 @@ export function LoyaltyCardVisual({
    * see lib/loyalty/offer.ts. Omitted only for a card with no offer
    * defined yet, which onboarding no longer allows past the offer step. */
   offerText,
+  /** Set once at issuance from the business's card_validity_months at that
+   * moment (see 0016_card_expiry.sql) — null means this card never
+   * expires. Whether it has already passed is computed here, not passed
+   * in, so there is exactly one place "expired" can mean something
+   * different from what the date says. */
+  expiresAt,
   /** Inline SVG for the scannable code. Omitted → the pass renders without it. */
   qrSvg,
   className = "",
@@ -187,6 +204,7 @@ export function LoyaltyCardVisual({
   theme?: CardTheme | null;
   kind?: string | null;
   offerText?: string | null;
+  expiresAt?: string | null;
   qrSvg?: string | null;
   className?: string;
 }) {
@@ -222,9 +240,11 @@ export function LoyaltyCardVisual({
   const glassBg = dark ? "rgba(255,255,255,0.32)" : "rgba(9,20,18,0.34)";
   const glassBorder = dark ? "rgba(255,255,255,0.5)" : "rgba(255,255,255,0.16)";
 
+  const expired = expiresAt ? new Date(expiresAt) < new Date() : false;
+
   return (
     <div
-      className={`relative overflow-hidden rounded-card shadow-gold ${className}`}
+      className={`relative overflow-hidden rounded-card shadow-gold ${expired ? "grayscale" : ""} ${className}`}
       style={{ background: `linear-gradient(160deg, ${t.backgroundFrom}, ${t.backgroundTo})` }}
     >
       {t.pattern !== "none" && (
@@ -381,6 +401,22 @@ export function LoyaltyCardVisual({
               </p>
             </div>
           </div>
+        )}
+
+        {/* Zone 6 — only rendered when the business has validity turned on
+            (SRS FR-2 region 6). Distinct wording and weight when expired
+            rather than just a date, since a customer glancing at the pass
+            needs "this stopped working" to read faster than "do the date
+            math yourself". */}
+        {expiresAt && (
+          <p
+            className="mt-2 text-center text-[10px] font-bold"
+            style={expired ? { color: "#f2b8b8" } : { opacity: 0.65 }}
+          >
+            {expired
+              ? "انتهت صلاحية هذه البطاقة"
+              : `صالحة حتى ${formatExpiryDate(expiresAt)}`}
+          </p>
         )}
       </div>
     </div>
