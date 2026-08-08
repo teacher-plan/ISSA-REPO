@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { getCurrentUser, getOwnedBusiness } from "@/lib/auth/session";
 import { getJoinUrl, renderQrSvg } from "@/lib/wallet/qr";
 import { CopyLinkButton } from "@/components/copy-link-button";
+import { DownloadQrButton } from "@/components/download-qr-button";
 
 export default async function OnboardingJoinQrPage() {
   const { profile } = await getCurrentUser();
@@ -38,8 +39,9 @@ export default async function OnboardingJoinQrPage() {
         <p dir="ltr" className="mt-4 break-all text-center text-xs text-primary-500">
           {joinUrl}
         </p>
-        <div className="mt-3 flex justify-center">
+        <div className="mt-3 flex flex-wrap justify-center gap-2">
           <CopyLinkButton url={joinUrl} />
+          <DownloadQrButton svg={qrSvg} filename={`رمز-انضمام-${business.name}.png`} />
         </div>
       </div>
 

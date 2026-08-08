@@ -8,6 +8,7 @@ import {
 } from "@/lib/auth/session";
 import { getJoinUrl, renderQrSvg } from "@/lib/wallet/qr";
 import { CopyLinkButton } from "@/components/copy-link-button";
+import { DownloadQrButton } from "@/components/download-qr-button";
 import { BusinessSettingsForm } from "./form";
 
 export default async function BusinessSettingsPage() {
@@ -57,8 +58,9 @@ export default async function BusinessSettingsPage() {
           <p dir="ltr" className="mt-2 break-all text-xs text-primary-500">
             {joinUrl}
           </p>
-          <div className="mt-3">
+          <div className="mt-3 flex flex-wrap justify-center gap-2 sm:justify-start">
             <CopyLinkButton url={joinUrl} />
+            <DownloadQrButton svg={qrSvg} filename={`رمز-انضمام-${business.name}.png`} />
           </div>
         </div>
       </div>
